@@ -1,16 +1,20 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "waytoodanny",
-  "metadata": {
-    "description": "Custom Claude Code Marketplace"
-  },
+  "description": "Custom Claude Code Marketplace",
   "owner": {
     "name": "Daniel Volnitsky"
   },
   "plugins": [
     {
       "name": "code-review",
-      "path": "plugins/code-review",
-      "description": "Code Review activities related skills"
+      "description": "Code Review activities related skills",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/DanielVolnitsky/claude-code-marketplace.git",
+        "path": "plugins/code-review",
+        "ref": "main"
+      }
     }
   ]
 }
