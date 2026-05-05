@@ -1,0 +1,10 @@
+{
+  "name": "waytoodanny-marketplace",
+  "metadata": {
+    "description": "Custom Claude Code Marketplace"
+  },
+  "owner": {
+    "name": "Daniel Volnitsky"
+  },
+  "plugins": []
+}

@@ -1,0 +1,12 @@
+### Mac OS ###
+.DS_Store
+
+.idea
+
+.codemie
+
+### Superpowers plugin
+/docs/superpowers/
+
+### Git worktrees
+.worktrees/
