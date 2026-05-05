@@ -1,18 +1,20 @@
 ---
 name: dv-receiving-gitlab-code-review
-description: Use when you have an open GitLab MR and want to triage unresolved review threads — detect MR from current branch or accept MR id/URL, analyze open threads, display severity table, and act on threads interactively via glab
+description: Use when you have an open GitLab MR and want to triage unresolved review threads — detect MR from current branch, analyze open threads, display severity table, and act on threads interactively via glab
 user_invocable: true
+disable-model-invocation: true
+allowed-tools: glab
 ---
 
 # dv-receiving-gitlab-code-review
 
-Triage unresolved GitLab MR review threads interactively.
+Triage unresolved GitLab MR review threads with human-in-the-loop.
 
-## Step 1 — Detect MR and Fetch Threads (silently, via subagent)
+## Step 1 — Detect MR and Fetch Threads
 
 Read the file `gitlab-mr-unresolved-threads-supplier.md` (sibling to this skill file) to get the subagent prompt.
 
-Replace the literal text `"<branch-or-id>"` in that prompt with the actual argument passed to this skill (use `"auto"` if no argument was given).
+Replace the literal text `"<branch-or-id>"` in that prompt with `"auto"`.
 
 Spawn a subagent using the `Agent` tool with the resulting prompt.
 
@@ -22,19 +24,22 @@ Parse the JSON the subagent returned:
 
 - `error` key present → print the error message and stop.
 - `multiple` key present → print a numbered list of MRs, ask user to pick one, then re-run the subagent with the chosen iid.
-- `threads` is empty → print `No unresolved review threads on MR !<iid>.` then enter the interactive loop (refresh available).
+- `threads` is empty → print `No unresolved review threads on MR !<iid>.` and stop.
 - Otherwise, → proceed to Step 3.
 
 ## Step 3 — Display Analysis Table
 
-Sort by severity descending (critical first). Number threads `#1`, `#2`, … for this session.
+Categorize comments by actual severity. Sort by severity descending (critical first). Number threads `#1`, `#2`, … for this session.
 
-| # | Summary | Location | Severity | Recommended action | Thread link |
+| # | Comment | Location | Severity | Recommended action | Thread link |
 |---|---------|----------|----------|--------------------|-------------|
+
+**Comment:** The original comment text from the GitLab thread (first note of the discussion), verbatim.
 
 **Location:** Format as `file/path.py:42` (file and line number). If no line number, just `file/path.py`. If no file info, leave blank.
 
 **Severity scale:**
+
 - `critical` — breaks functionality, security issue, data loss risk; must fix before merge
 - `major` — significant logic/design flaw, likely to cause bugs; should fix before merge
 - `minor` — correctness concern, improvement that would noticeably help quality
@@ -43,32 +48,18 @@ Sort by severity descending (critical first). Number threads `#1`, `#2`, … for
 
 **Thread link:** Direct URL to the specific discussion thread on the MR.
 
+### Critical Rules
 
-## Step 4 — Interactive Loop
+**DO:**
 
-Stay active after the table. Accept these commands:
+- Categorize by actual severity
+- Explain a logic behind your verdict
+- Give a clear verdict
 
-| Command | Action |
-|---------|--------|
-| `fix #N` | Print: `fix skill not yet available — coming soon` |
-| `reply #N <message>` | Run `glab api` POST to add comment. Hook prompts `[y/N]` — do NOT prompt yourself. |
-| `resolve #N` | If thread has resolvable=false, print: `Thread #N is a general comment and cannot be resolved via API.` Otherwise run `glab api` PUT to resolve thread. Hook prompts `[y/N]` — do NOT prompt yourself. |
-| `refresh` | Re-fetch open threads, reprint table with fresh numbering from `#1`. |
+**DON'T:**
 
-**IMPORTANT for resolve and reply:** Do NOT ask the user for confirmation in the loop. The shell hook handles the single confirmation. If the hook blocks (user says N), the action is not executed — continue the loop normally.
-
-### glab API calls to use
-
-**Reply (POST new comment to thread):**
-```bash
-glab api --method POST "projects/:fullpath/merge_requests/:iid/discussions/:discussion_id/notes" \
-  --field "body=<message>"
-```
-
-**Resolve thread (PUT):**
-```bash
-glab api --method PUT "projects/:fullpath/merge_requests/:iid/discussions/:discussion_id" \
-  --field "resolved=true"
-```
-
-To get `:iid` and `:discussion_id`: parse the discussions JSON from the subagent result in Step 1. The `iid` is the MR internal ID, `discussion_id` is each thread's `id` field.
+- Say "looks valid" without checking
+- Mark nitpicks as Critical
+- Give feedback on code you didn't actually read
+- Be vague ("improve error handling")
+- Avoid giving a clear verdict
