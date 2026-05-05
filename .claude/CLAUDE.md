@@ -1,3 +1,7 @@
+## Skill Naming Convention
+
+All skills in this repository must be prefixed with `dv-` (e.g. `dv-receiving-gitlab-code-review`). This applies to the directory name, the `name` field in `SKILL.md` frontmatter, and the heading inside the skill body.
+
 ## Git Commit Pattern
 
 When committing changes, use the following format:

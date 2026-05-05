@@ -6,5 +6,11 @@
   "owner": {
     "name": "Daniel Volnitsky"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "code-review",
+      "path": "plugins/code-review",
+      "description": "Code Review activities related skills"
+    }
+  ]
 }
