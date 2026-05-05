@@ -10,44 +10,11 @@ Triage unresolved GitLab MR review threads interactively.
 
 ## Step 1 — Detect MR and Fetch Threads (silently, via subagent)
 
-Spawn a subagent using the `Agent` tool.
+Read the file `gitlab-mr-unresolved-threads-supplier.md` (sibling to this skill file) to get the subagent prompt.
 
-**Subagent prompt** (fill in `<branch-or-id>` from the skill argument, or `"auto"` if none given):
+Replace the literal text `"<branch-or-id>"` in that prompt with the actual argument passed to this skill (use `"auto"` if no argument was given).
 
-```
-Return only a JSON object.
-
-Input: "<branch-or-id>"  (if "auto", detect from git)
-
-Steps:
-1. If input is "auto": run `git branch --show-current` to get the branch name, then run `glab mr list --source-branch <branch> --output json`.
-   If input looks like an MR id or URL, resolve it to an iid and skip branch detection.
-2. Parse the MR list:
-   - 0 results → return {"error": "No open MR found for branch '<branch>'. Pass an MR ID or URL explicitly."}
-   - >1 results → return {"multiple": true, "mrs": [{"iid": N, "title": "...", "url": "..."}]}
-   - 1 result  → note the iid, web_url, source_branch
-3. Run: glab api --paginate "projects/:fullpath/merge_requests/<iid>/discussions" --output json
-4. Include a thread if EITHER condition holds:
-   - resolvable=true AND resolved=false  (inline/resolvable thread)
-   - resolvable=false AND at least one note has system=false  (general MR comment)
-   Skip threads where every note has system=true (GitLab activity events like "assigned to X").
-   For each included thread collect:
-   - discussion_id (the thread's "id" field)
-   - resolvable: the thread-level resolvable boolean
-   - notes: array of {author_username, body} for every note where system=false
-   - thread_url: web_url + "#note_" + first note's id
-   - file: from the first note's position.new_path (or null if no position)
-   - line: from the first note's position.new_line; if null, try position.old_line (or null if no position)
-5. Return:
-   {
-     "mr_iid": <N>,
-     "mr_url": "<url>",
-     "source_branch": "<branch>",
-     "unresolved_threads": [
-       {"discussion_id": "...", "notes": [...], "thread_url": "...", "file": "...", "line": <N or null>}
-     ]
-   }
-```
+Spawn a subagent using the `Agent` tool with the resulting prompt.
 
 ## Step 2 — Handle Subagent Result
 
@@ -55,7 +22,7 @@ Parse the JSON the subagent returned:
 
 - `error` key present → print the error message and stop.
 - `multiple` key present → print a numbered list of MRs, ask user to pick one, then re-run the subagent with the chosen iid.
-- `unresolved_threads` is empty → print `No unresolved review threads on MR !<iid>.` then enter the interactive loop (refresh available).
+- `threads` is empty → print `No unresolved review threads on MR !<iid>.` then enter the interactive loop (refresh available).
 - Otherwise, → proceed to Step 3.
 
 ## Step 3 — Display Analysis Table
@@ -104,4 +71,4 @@ glab api --method PUT "projects/:fullpath/merge_requests/:iid/discussions/:discu
   --field "resolved=true"
 ```
 
-To get `:iid` and `:discussion_id`: parse the discussions JSON from Step 2. The `iid` is the MR internal ID, `discussion_id` is each thread's `id` field.
+To get `:iid` and `:discussion_id`: parse the discussions JSON from the subagent result in Step 1. The `iid` is the MR internal ID, `discussion_id` is each thread's `id` field.
