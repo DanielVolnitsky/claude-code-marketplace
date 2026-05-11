@@ -4,7 +4,7 @@
 
 ```bash
 # Add the marketplace (once per machine / container)
-claude plugin marketplace add https://github.com/DanielVolnitsky/spanish-vault-obsidian.git
+claude plugin marketplace add https://github.com/DanielVolnitsky/claude-code-marketplace.git
 
 # Install a plugin example
 claude plugin install code-review@receiving-code-review
