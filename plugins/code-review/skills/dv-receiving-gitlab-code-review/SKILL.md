@@ -27,7 +27,18 @@ Parse the JSON the subagent returned:
 - `threads` is empty → print `No unresolved review threads on MR !<iid>.` and stop.
 - Otherwise, → proceed to Step 3.
 
-## Step 3 — Display Analysis Table
+## Step 3 — Filter Non-Actionable Threads
+
+Before displaying anything, discard threads whose first note is a summary or verdict rather than actionable feedback. Drop a thread if the comment:
+
+- Reads as an overall review verdict (e.g. "Ready to merge?: 🟢 Yes — 0 Critical, 0 Important, 3 Minor")
+- Is a pure approval or LGTM without specific feedback (e.g. "LGTM", "Approved", "Looks good to me")
+- Is an automated bot summary (e.g. pipeline status, coverage report, review-score rollup)
+- Contains no concrete suggestion, question, or concern directed at a specific piece of code
+
+If all threads are filtered out after this step, print `No actionable review threads on MR !<iid>.` and stop.
+
+## Step 4 — Display Analysis Table
 
 Categorize comments by actual severity. Sort by severity descending (critical first). Number threads `#1`, `#2`, … for this session.
 
