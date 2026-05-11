@@ -7,7 +7,7 @@
 claude plugin marketplace add https://github.com/DanielVolnitsky/claude-code-marketplace.git
 
 # Install a plugin example
-claude plugin install code-review@receiving-code-review
+claude plugin install code-review@waytoodanny
 ```
 
 ## Contributing
