@@ -3,6 +3,7 @@ name: dv-receiving-gitlab-code-review
 description: Use when you need to handle unresolved GitLab code review discussions — detect MR of the current branch, analyze open discussions, display severity table, propose a fix|reaction plan with open questions, then on approval apply fixes, commit, push, and follow the CI pipeline to green
 user_invocable: true
 disable-model-invocation: false
+allowed-tools: Read
 ---
 
 Triage unresolved GitLab MR review threads with human-in-the-loop, then fix, push, and ride the pipeline to green.
