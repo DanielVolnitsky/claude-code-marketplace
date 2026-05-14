@@ -15,6 +15,16 @@
         "path": "plugins/code-review",
         "ref": "main"
       }
+    },
+    {
+      "name": "sdlc-implementation",
+      "description": "Skills for the implementation phase of the SDLC — from ticket to merged PR",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/DanielVolnitsky/claude-code-marketplace.git",
+        "path": "plugins/sdlc-implementation",
+        "ref": "main"
+      }
     }
   ]
 }

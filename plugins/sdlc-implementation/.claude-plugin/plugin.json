@@ -1,0 +1,8 @@
+{
+  "name": "sdlc-implementation",
+  "description": "Skills for the implementation phase of the software development lifecycle — from ticket to merged PR",
+  "version": "1.0.0",
+  "author": {
+    "name": "Daniel Volnitsky"
+  }
+}
