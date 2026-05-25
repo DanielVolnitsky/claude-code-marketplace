@@ -1,12 +1,14 @@
 ---
 name: dv-changes-briefing
-description: Produces a plain-language branch briefing for a Java Senior engineer unfamiliar with the tech stack (infra, Python, AI, cloud). Explains what existed before the branch, what changed, why, and which files to read in what order. Use when asked to explain a within-branch changes.
+description: Produces a plain-language branch briefing for a Java Senior engineer unfamiliar with the tech stack (infra, Python, AI, cloud). Explains what existed before the commits introduced within the current branch, what changed afterwards, why, which files are worth reading and in what order. Use when asked to explain a within-branch changes.
+context: fork
 ---
 
 # Changes Briefing
 
-Produces a structured briefing of the current branch's changes, written for a senior engineer who is expert in a Java stack but a dummy with the infra-as-code,
-Python, AI/ML services, cloud-native.
+Produces a structured briefing of the changes introduced by commits in current branch, that are absent in origin/develop, written for a senior engineer who is expert in a Java stack but a dummy with the infra-as-code, Python, AI/ML services, cloud-native.
+
+**Strictly follow the Workflow**
 
 ## Workflow
 
@@ -15,7 +17,7 @@ Python, AI/ML services, cloud-native.
 1. Run `git fetch origin` to ensure comparison is against the latest remote state.
 2. Run `git log origin/develop..HEAD --oneline` to get the exact commits on this branch.
 3. Run `git diff origin/develop...HEAD --stat` to get the list of changed files.
-4. Report: branch name, number of commits, number of files touched.
+4. Report: current branch name, number of commits from substep 2, number of files touched from substep 3.
 
 ---
 
