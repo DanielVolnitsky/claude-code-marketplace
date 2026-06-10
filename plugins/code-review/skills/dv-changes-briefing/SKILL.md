@@ -6,7 +6,8 @@ context: fork
 
 # Changes Briefing
 
-Produces a structured briefing of the changes introduced by commits in current branch, that are absent in origin/develop, written for a senior engineer who is expert in a Java stack but a dummy with the infra-as-code, Python, AI/ML services, cloud-native.
+Produces a structured briefing of the changes introduced by commits in current branch, that are absent in origin/develop, written for a senior engineer who is
+expert in a Java stack but a dummy with the infra-as-code, Python, AI/ML services, cloud-native.
 
 **Strictly follow the Workflow**
 
@@ -55,7 +56,13 @@ Explain the specific problem or gap that motivated these changes. Include:
 
 ---
 
-#### 3. Before vs. After
+#### 3. How The Problem Is Solved
+
+#### 4. Clarify if this information is enough or whether user needs something else
+
+Propose these items to the user along with the question. Do not write them until specifically asked by user:
+
+##### Before vs. After
 
 | Aspect           | Before this branch | After this branch |
 |------------------|--------------------|-------------------|
@@ -64,16 +71,12 @@ Explain the specific problem or gap that motivated these changes. Include:
 
 Keep to the most meaningful differences. Skip unchanged areas.
 
----
-
-#### 4. Architecture / Flow (if relevant)
+##### Architecture / Flow (if relevant)
 
 If the changes affect runtime behavior, add a simple ASCII diagram showing the flow or component relationships. Use analogies to concepts the target audience
 knows.
 
----
-
-#### 5. Top Files to Read, In Order
+##### Top Files to Read, In Order
 
 For each file worth reading:
 
@@ -84,18 +87,14 @@ For each file worth reading:
 
 Order: most important / most explanatory first. Group pure housekeeping files at the end as a single bullet.
 
----
-
-#### 6. Analogy Table (tech-stack translation)
+##### Analogy Table (tech-stack translation)
 
 | This stack's concept | Equivalent in target audience's stack |
 |----------------------|---------------------------------------|
 
 Translate every non-obvious term. Tailor to the audience confirmed in Step 0.
 
----
-
-#### 7. Key Caveats / Things to Watch For
+##### Key Caveats / Things to Watch For
 
 Any workarounds, temporary patches, known limitations, or "this will change when X matures" notes that a reviewer should be aware of.
 
@@ -106,5 +105,5 @@ Any workarounds, temporary patches, known limitations, or "this will change when
 - **Never summarize what the code does at the line level.** Explain intent and impact.
 - **Always explain the "why this approach" when a workaround exists.**
 - **Calibrate all analogies to the confirmed audience background** — a Java senior gets Spring/JEE analogies; a Rails dev gets ActiveRecord/Rack analogies, etc.
-- If `origin/develop` doesn't exist, fall back to `origin/main` or ask the user for the correct base branch.
+- If `origin/develop` doesn't exist, try to fall back to `origin/main` or `origin/master`, if failed - ask the user for the correct base branch.
 - If the branch has 0 commits ahead of origin, report that and stop.
