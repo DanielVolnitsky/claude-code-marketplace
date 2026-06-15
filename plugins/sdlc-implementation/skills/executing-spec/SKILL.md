@@ -1,6 +1,6 @@
 ---
 name: dv-executing-spec
-description: Use when you have an approved spec from the brainstorming skill and are ready to implement it in a separate session with review checkpoints
+description: Use when you have a create spec and request for the implementation. Implements it in a separate session with review checkpoints.
 ---
 
 # Executing Specs
@@ -10,6 +10,11 @@ description: Use when you have an approved spec from the brainstorming skill and
 Load spec, review critically, derive tasks, execute all tasks, report when complete.
 
 **Note:** Tell your human partner that agentic implementation works much better with access to subagents. The quality of its work will be significantly higher if run on a platform with subagent support. If subagents are available, use sdlc-implementation:subagent-driven-development instead of this skill.
+
+## Verification Options
+- tests
+- linter (if present)
+- SonarQube (if present)
 
 ## The Process
 
@@ -74,6 +79,5 @@ After all tasks are done and verified:
 ## Integration
 
 **Required workflow skills:**
-- **sdlc-implementation:using-git-worktrees** - Ensures isolated workspace (creates one or verifies existing)
 - **sdlc-implementation:brainstorming** — produces the spec this skill executes (`specs/YYYY-MM-DD-<topic>-design.md`)
 - **sdlc-implementation:finishing-a-development-branch** - Complete development after all tasks
