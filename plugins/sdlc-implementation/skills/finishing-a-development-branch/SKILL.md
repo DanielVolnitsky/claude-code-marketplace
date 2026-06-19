@@ -11,8 +11,6 @@ Guide completion of development work by presenting clear options and handling ch
 
 **Core principle:** Verify tests → Detect environment → Present options → Execute choice
 
-**Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
-
 ## The Process
 
 ### Step 1: Verify Quality Control Gates
@@ -43,23 +41,27 @@ Check if there were some updates to the origin/<default_repository_branch> that 
 
 ### Step 4: Present Options
 
-**Normal repo and named-branch worktree — present exactly these 5 options:**
+Inform a user about the results:
 
 ```
-Implementation complete. 
+Implementation has been completed. 
 
 Current branch state:
 - <mention whether we are on a default or custom feature branch>
 - <mention whether some commits from the origin/<default_repository_branch> need a rebase>
-
-What would you like to do?
-
-1. Rebase (if needed) & Squash & Push & create a Pull Request & /goal make sure CI pipeline is green
-2. Create a new branch (specify the name), then pipeline from Option 1
-3. <let user write their request>
-
-Which option?
 ```
+
+Use `AskUserQuestion` tool **with multiple options choice possibility** to query a user on the next steps.
+Leave one free-choice option so user could specify their own view on next steps as a free-form text.
+Mention your recommendation on the next steps and let a user a possibility to go with it as one of the options.
+
+Options:
+
+- Create a new branch (let user specify or prompt them about the name)
+- Rebase (propose only if needed)
+- Squash (propose only if needed)
+- Push
+- Create a Merge Request (if this option is chosen - call `/goal` command with argument `make sure CI pipeline is green`)
 
 **Don't add explanation** - keep options concise.
 

@@ -7,8 +7,12 @@ description: "Use when there is some raw task or plan that needs refinement and 
 
 Interview me relentlessly about every aspect of provided plan until we reach a shared understanding.
 Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
-When an understanding is reached: there is no huge gaps, or unanswered questions that can affect design in a huge way, ask me what to do with the result of the
-session. Propose to write it down to a specification file.
+When an understanding is reached: there is no huge gaps, or unanswered questions that can affect design in a huge way, ask me what to do with the result of the session.
+Propose to write it down to a specification file.
+If specification file was created, use `AskUserQuestion` tool to propose next step/steps (multiple choice is available):
+
+- propose critically evaluate the specification using `sdlc-implementation:dv-critical-thinking`
+- propose continue by implementation the spec using the `sdlc-implementation:dv-executing-spec`.
 
 ## Key Principles
 
@@ -41,4 +45,5 @@ If I ask you to write out results of the session to a specification file:
 
 - Write design doc — save to `specs/YYYY-MM-DD-<topic>-design.md`
 - Dispatch a subagent using the prompt template at `spec-reviewer-prompt.md`
-- If there is some feedback from the subagent that requires action before implementing the spec - get back to the human interview stage
+- Propose critically evaluate the spec using `sdlc-implementation:dv-critical-thinking`
+- If there is some feedback from any review-related skill or subagent that requires action before implementing the spec - get back to the human interview stage

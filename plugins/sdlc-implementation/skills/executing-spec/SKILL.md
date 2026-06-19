@@ -1,6 +1,6 @@
 ---
 name: dv-executing-spec
-description: Use when you have a create spec and request for the implementation. Implements it in a separate session with review checkpoints.
+description: Use when a specification file has been created and there is a request for its implementation. Implements it in a separate session with review checkpoints.
 ---
 
 # Executing Specs
@@ -49,6 +49,11 @@ After all tasks are done and verified:
   **REQUIRED SUB-SKILL:** Use sdlc-implementation:finishing-a-development-branch
 - Follow that skill to verify tests, present options, execute choice
 
+### Step 5: Propose Next Steps Options
+
+Use `AskUserQuestion` tool to ask user what they want to do with the result of your work:
+- Propose finalizing the work by using `sdlc-implementation:dv-finishing-a-development-branch` skill
+
 ## When to Stop and Ask for Help
 
 **STOP executing immediately when:**
@@ -78,6 +83,6 @@ After all tasks are done and verified:
 
 ## Integration
 
-**Required workflow skills:**
-- **sdlc-implementation:brainstorming** — produces the spec this skill executes (`specs/YYYY-MM-DD-<topic>-design.md`)
-- **sdlc-implementation:finishing-a-development-branch** - Complete development after all tasks
+**Related workflow skills:**
+- **sdlc-implementation:dv-brainstorming** — produces the spec this skill executes (`specs/YYYY-MM-DD-<topic>-design.md`)
+- **sdlc-implementation:dv-finishing-a-development-branch** - Complete development after all tasks
