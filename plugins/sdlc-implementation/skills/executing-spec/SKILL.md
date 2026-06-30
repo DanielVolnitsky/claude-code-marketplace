@@ -1,6 +1,6 @@
 ---
 name: dv-executing-spec
-description: Use when a specification file has been created and there is a request for its implementation. Implements it in a separate session with review checkpoints.
+description: Use when a specification file has been created and there is a request for its implementation. Implements the spec with review checkpoints.
 ---
 
 # Executing Specs
