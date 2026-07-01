@@ -30,7 +30,7 @@ You are not responsible for issues detection - it is **forbidden for you to dete
 
 ## Code-review partner
 
-**Strictly Use **sdlc-implementation:dv-local-code-reviewing** skill** to produce a code review - reviews the produced code and provides a feedback on detected
+**Strictly Use **sdlc-implementation:code-reviewing** skill** to produce a code review - reviews the produced code and provides a feedback on detected
 issues.
 
 ## Reported-issue-judgment partner
