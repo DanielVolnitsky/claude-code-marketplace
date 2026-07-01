@@ -52,6 +52,7 @@ After all tasks are done and verified:
 ### Step 5: Propose Next Steps Options
 
 Use `AskUserQuestion` tool to ask user what they want to do with the result of your work:
+- Propose launching a code polishing `sdlc-implementation:dv-code-polishing` skill
 - Propose finalizing the work by using `sdlc-implementation:dv-finishing-a-development-branch` skill
 
 ## When to Stop and Ask for Help
@@ -85,4 +86,5 @@ Use `AskUserQuestion` tool to ask user what they want to do with the result of y
 
 **Related workflow skills:**
 - **sdlc-implementation:dv-brainstorming** — produces the spec this skill executes (`specs/YYYY-MM-DD-<topic>-design.md`)
+- **sdlc-implementation:dv-code-polishing** - polishing the produced code to improve its quality
 - **sdlc-implementation:dv-finishing-a-development-branch** - Complete development after all tasks
