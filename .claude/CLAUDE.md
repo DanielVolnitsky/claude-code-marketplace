@@ -1,6 +1,19 @@
+# Contribution Rules
+
+## Context Minimalism
+
+- Give skills the minimal possible system prompt and the minimal possible tools, then let the model figure out the rest.
+- Only tell the model what it needs to know — too much context is micromanagement and can prevent the model from finding a better path.
+- Treat the model like an engineer you're delegating to, not a pair programmer you're guiding line by line; give it a way to pull in context when needed rather than front-loading everything.
+- Detailed sections are not forbidden, and should be used when appropriate: model burns tokens every time to get on the right track; you need higher consistency etc.
+
+## Best Practices correspondence
+
+When creating, updating, or performing a code-review for a skill - make sure it corresponds to best practices and does not violate critical issues described in @skill-rules.md 
+
 ## Skill Naming Convention
 
-All skills in this repository must be prefixed with `dv-` (e.g. `dv-receiving-gitlab-code-review`). This applies to the directory name, the `name` field in `SKILL.md` frontmatter, and the heading inside the skill body.
+All skills in this repository must be prefixed with `dv-` (e.g. `dv-receiving-gitlab-code-review`). This applies to the `name` field in `SKILL.md` frontmatter and the heading inside the skill body.
 
 ## Plugin Version
 
