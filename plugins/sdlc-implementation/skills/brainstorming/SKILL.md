@@ -17,6 +17,7 @@ Iterate whenever additional discussion points are raised by human.
 Use `AskUserQuestion` tool to propose next step/steps (multiple choice is available):
 
 - create a spec using `sdlc-implementation:creating-spec` skill
+- proceed with direct implementation
 - `freeform human request option`
 
 ## Key Principles
