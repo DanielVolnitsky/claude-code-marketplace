@@ -1,18 +1,23 @@
 ---
 name: dv-brainstorming
-description: "Use when there is some raw task or plan that needs refinement and brainstorming to fill the design gaps. Interviews human about every aspect of provided plan until the plan is solid."
+description: "Use when there is some raw task description or plan that needs refinement and brainstorming to fill the design gaps. Interviews human about every aspect of provided task/plan until the plan is solid."
+model: opus
 ---
 
 # Task
 
-Interview me relentlessly about every aspect of provided plan until we reach a shared understanding.
+Interview human relentlessly about every aspect of provided plan until you reach a shared understanding.
 Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
-When an understanding is reached: there is no huge gaps, or unanswered questions that can affect design in a huge way, ask me what to do with the result of the session.
-Propose to write it down to a specification file.
-If specification file was created, use `AskUserQuestion` tool to propose next step/steps (multiple choice is available):
+When an understanding is reached: there is no huge gaps, or unanswered questions that can affect design in a huge way,
+let human know 'what are you least confident about right now' and ask human if they agree the understanding is reached.
+Iterate whenever additional discussion points are raised by human.
 
-- propose critically evaluate the specification using `sdlc-implementation:dv-critical-thinking`
-- propose continue by implementation the spec using the `sdlc-implementation:dv-executing-spec`.
+# Post-processing
+
+Use `AskUserQuestion` tool to propose next step/steps (multiple choice is available):
+
+- create a spec using `sdlc-implementation:creating-spec` skill
+- `freeform human request option`
 
 ## Key Principles
 
@@ -38,12 +43,3 @@ Verdict: wrong question - answer can be deducted from the context
 ```
 
 When you get the answer from the context or tools usage - state it clearly to the user.
-
-## Output Specification
-
-If I ask you to write out results of the session to a specification file:
-
-- Write design doc — save to `specs/YYYY-MM-DD-<topic>-design.md`
-- Dispatch a subagent using the prompt template at `spec-reviewer-prompt.md`
-- Propose critically evaluate the spec using `sdlc-implementation:dv-critical-thinking`
-- If there is some feedback from any review-related skill or subagent that requires action before implementing the spec - get back to the human interview stage

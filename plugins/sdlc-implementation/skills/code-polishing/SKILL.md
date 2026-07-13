@@ -53,4 +53,5 @@ brainstorm with user what to do with them. Accompany every question with your re
 
 Use `AskUserQuestion` tool to ask user what they want to do with the result of your work:
 
-- Propose finalizing the work by using `sdlc-implementation:dv-finishing-a-development-branch` skill
+- finish the development iteration using `sdlc-implementation:finishing-a-development-branch` skill
+- `freeform human request option`

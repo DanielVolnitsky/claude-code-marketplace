@@ -1,6 +1,8 @@
 ---
 name: dv-executing-spec
 description: Use when a specification file has been created and there is a request for its implementation. Implements the spec with review checkpoints.
+model: sonnet
+context: fork
 ---
 
 # Executing Specs
@@ -73,7 +75,7 @@ Use `AskUserQuestion` tool to ask user what they want to do with the result of y
 
 **Don't force through blockers** — stop and ask.
 
-## Remember
+## Key Principles
 
 - Review the spec critically before writing any code
 - Derive tasks explicitly before starting; don't free-style
@@ -82,9 +84,10 @@ Use `AskUserQuestion` tool to ask user what they want to do with the result of y
 - Reference skills or tools when the spec calls for them
 - Stop when blocked, don't guess
 
-## Integration
+# Post-processing
 
-**Related workflow skills:**
-- **sdlc-implementation:dv-brainstorming** — produces the spec this skill executes (`specs/YYYY-MM-DD-<topic>-design.md`)
-- **sdlc-implementation:dv-code-polishing** - polishing the produced code to improve its quality
-- **sdlc-implementation:dv-finishing-a-development-branch** - Complete development after all tasks
+Use `AskUserQuestion` tool to propose next step/steps (multiple choice is available):
+
+- review and polish the produced code to potentially improve its quality using `sdlc-implementation:dv-code-polishing` skill
+- finish the development iteration using `sdlc-implementation:finishing-a-development-branch` skill
+- `freeform human request option`
