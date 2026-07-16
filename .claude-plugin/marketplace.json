@@ -25,6 +25,16 @@
         "path": "plugins/sdlc-implementation",
         "ref": "main"
       }
+    },
+    {
+      "name": "comprehension",
+      "description": "Skills for understanding and explaining code changes",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/DanielVolnitsky/claude-code-marketplace.git",
+        "path": "plugins/comprehension",
+        "ref": "main"
+      }
     }
   ]
 }

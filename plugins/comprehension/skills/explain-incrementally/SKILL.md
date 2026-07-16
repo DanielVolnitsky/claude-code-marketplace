@@ -1,7 +1,6 @@
 ---
 name: dv-explain-incrementally
 description: Teach how something in this codebase works one small piece at a time, checking understanding before each next step, grounded in the real code. Use when the user wants to *understand* a mechanism, subsystem, or flow (not fix or build it) and asks to be taught, walked through, or explained "like I'm 10", "step by step", "slowly", or says a previous explanation was too much at once. Trigger on phrases like "teach me how X works", "explain X step by step", "walk me through X", "I don't understand X", "that was too much info".
-user_invocable: true
 argument-hint: "[what to explain]"
 allowed-tools:
   - Read
@@ -10,6 +9,9 @@ allowed-tools:
   - Bash(grep*)
   - Bash(find*)
   - Bash(ls*)
+user-invocable: true
+disable-model-invocation: true
+model: opus
 ---
 
 # dv-explain-incrementally
