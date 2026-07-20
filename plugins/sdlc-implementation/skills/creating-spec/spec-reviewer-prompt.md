@@ -18,9 +18,10 @@ Task tool (general-purpose):
     |----------|------------------|
     | Completeness | TODOs, placeholders, "TBD", incomplete sections |
     | Consistency | Internal contradictions, conflicting requirements |
-    | Clarity | Requirements ambiguous enough to cause someone to build the wrong thing |
+    | Clarity | Intent is not clear or requirements ambiguous enough to cause someone to build the wrong thing |
     | Scope | Focused enough for a single plan — not covering multiple independent subsystems |
     | YAGNI | Unrequested features, over-engineering |
+    | Minimalism | Contains unnecessary low level decisions that could be delegated to implementor |
 
     ## Calibration
 

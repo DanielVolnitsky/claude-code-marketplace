@@ -8,9 +8,10 @@ context: fork
 ## Key Principles
 
 - Keep it goal-oriented: a spec should focus on what and why, and high-level how - without detailed code
-- Aim for covering just enough nuance (may include structure, style, testing, boundaries)
+- Aim for covering just enough nuance (may include structure, style, testing, boundaries), leaving low-level implementation decisions to an implementor
 - Break large tasks into smaller ones. Each task should be something that can be implemented and tested in isolation.
 - Specify when tasks must be done incrementally, and when in parallel
+- Respect human-in-the-loop time necessary to review the produced spec - convey information briefly (talk like caveman), avoid duplication
 
 # Spec Content Requirements
 
@@ -18,7 +19,7 @@ context: fork
 - Objectives
 - Requirements
 - Constraints
-- Step-by-step plan
+- High-level step-by-step plan
 
 ## Output Specification
 
