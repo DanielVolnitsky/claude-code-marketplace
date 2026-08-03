@@ -7,19 +7,18 @@ context: fork
 
 ## Key Principles
 
-- Keep it goal-oriented: a spec should focus on what and why, and high-level how - without detailed code
-- Aim for covering just enough nuance (may include structure, style, testing, boundaries), leaving low-level implementation decisions to an implementor
-- Break large tasks into smaller ones. Each task should be something that can be implemented and tested in isolation.
-- Specify when tasks must be done incrementally, and when in parallel
-- Respect human-in-the-loop time necessary to review the produced spec - convey information briefly (talk like caveman), avoid duplication
+- **Goal-oriented**. A spec should focus on what and why, and high-level how;
+- **No low-level code/details**. Aim for covering just enough nuance (may include structure, style, testing, boundaries), leaving low-level implementation decisions to an implementor;
+- **Be concise**. Respect human-in-the-loop time necessary to review the produced spec. Be brief, talk like caveman. Avoid duplication;  
+- **~150 line spec**. Aim for this file length. If you need more - justify it at the end of your turn for human.
 
 # Spec Content Requirements
 
-- Clear goal statement
+- Goal
 - Objectives
 - Requirements
 - Constraints
-- High-level step-by-step plan
+- High-level implementation plan
 
 ## Output Specification
 
@@ -31,7 +30,7 @@ Create a spec file based on provided context according to Key Principles, Spec C
 
 # Post-processing
 
-- Dispatch opus subagent using the prompt template at `spec-reviewer-prompt.md` to review the spec:
+- Dispatch the `sdlc-implementation:spec-reviewer` agent with the spec file path to review the spec:
     - If there are comments that need human judgment, use `AskUserQuestion` tool to fill the gaps
     - Else - modify the spec according to review comments
 - Use `AskUserQuestion` tool to propose human nxt steps options:

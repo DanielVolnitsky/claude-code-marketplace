@@ -6,10 +6,11 @@ model: opus
 
 # Task
 
-Interview human relentlessly about every aspect of provided plan until you reach a shared understanding.
-Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
-When an understanding is reached: there is no huge gaps, or unanswered questions that can affect design in a huge way,
-let human know 'what are you least confident about right now' and ask human if they agree the understanding is reached.
+- Interview human relentlessly about every aspect of provided plan until you reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
+- When an understanding is reached: there is no huge gaps, or unanswered questions that can affect design in a huge way, let human know what are you least confident about right now and brainstorm with human what to do with each item.
+- When low-confidence items are resoled, tell human what did you tell them works that you didn’t actually verify. Brainstorm with human what to do with each item.
+- When all important stuff is verified, let human know what's the biggest thing they are probably missing about this that they haven't thought to ask. Brainstorm with human what to do with each item.
+
 Iterate whenever additional discussion points are raised by human.
 
 # Post-processing
@@ -18,7 +19,8 @@ Use `AskUserQuestion` tool to propose next step/steps (multiple choice is availa
 
 - create a spec using `sdlc-implementation:creating-spec` skill
 - proceed with direct implementation
-- `freeform human request option`
+
+**Always include freeform option** as the last one in case human wants to describe their vision instead of choosing proposed options.
 
 ## Key Principles
 
