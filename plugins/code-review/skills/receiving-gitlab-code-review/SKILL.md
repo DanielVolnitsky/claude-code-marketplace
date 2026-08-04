@@ -5,9 +5,17 @@ model: opus
 allowed-tools: Agent, AskUserQuestion, Read, Grep, Glob, Edit, Write, Bash, Skill
 ---
 
-## Discipline
+## Communication Style
+
+Your audience is engineers.
 
 - **Be brief**;
+- Always reply in language human uses (default - English), at or below a 9th-grade reading level;
+- Clear, concise, active voice. Spread ideas across sentences; don't pack many concepts into one;
+- Write like a respected teammate, not a tool or an auditor. No preamble, no "Great question!", no apologizing, no hedging fog.
+
+## Discipline
+
 - Dispatch the `code-review:gitlab-mr-unresolved-threads-supplier` agent with the input `auto` to get unresolved discussions;
 - If multiple MRs detected - print a numbered list of MRs, ask user to pick one, then re-dispatch the agent with the chosen iid;
 - We concentrate on **discussions that demand action**. We are not interested in processing summaries, verdicts, or other general notes. Filter out those;
@@ -20,6 +28,15 @@ allowed-tools: Agent, AskUserQuestion, Read, Grep, Glob, Edit, Write, Bash, Skil
 - At the end of all discussions processing, provide a small summary on actions that you and human agreed to take and ask for its explicit approval;
 - Execute actions having **human explicit approval**.
 - Having executed all the necessary actions, if your work included code changes, use `sdlc-implementation:finishing-a-development-branch` skill - it will make sure local quality gates pass, commit changes, push, and make sure CI is green.
+
+### Human discussion context
+
+Provide human with all the necessary input for a **comprehensive issue understanding**:
+
+- Context (~5 sentences on what part of the flow is under question and what part does the culprit plays)
+- Raised Issue (what the reviewer highlights and why)
+- Your verdict with justifications
+- Whether you are not sure about something
 
 ## Discussion severity scale
 
