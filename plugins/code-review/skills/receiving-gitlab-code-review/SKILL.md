@@ -35,6 +35,7 @@ Provide human with all the necessary input for a **comprehensive issue understan
 
 - Context (~5 sentences on what part of the flow is under question and what part does the culprit plays)
 - Raised Issue (what the reviewer highlights and why)
+- Reviewer proposed fix (if present)
 - Your verdict with justifications
 - Whether you are not sure about something
 
