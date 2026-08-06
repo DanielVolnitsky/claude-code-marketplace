@@ -35,6 +35,16 @@
         "path": "plugins/comprehension",
         "ref": "main"
       }
+    },
+    {
+      "name": "agents-development",
+      "description": "Skills for developing agents, skills, and other agent-facing artifacts",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/DanielVolnitsky/claude-code-marketplace.git",
+        "path": "plugins/agents-development",
+        "ref": "main"
+      }
     }
   ]
 }
