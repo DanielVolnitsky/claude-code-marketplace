@@ -1,5 +1,5 @@
 ---
-name: dv-explain-diff-html
+name: dv-explaining-diff-as-html
 description: Produces a rich, interactive HTML explanation of a code change, diff, branch, or PR, with background, intuition, code walkthrough, and a quiz. Use when the user asks to explain a diff, branch, or PR in detail, or wants an interactive/visual walkthrough of a code change.
 argument-hint: "[what to explain]"
 user-invocable: true
@@ -12,7 +12,8 @@ model: opus
 Make a rich, interactive explanation of the specified code change.
 
 ## Sections
-
+ 
+- **TLDR** (mandatory, always first): A few sentences plus a short bullet list covering what, why, and the reader-visible impact. Self-contained — understandable without reading any other section.
 - **Background**: Explain the existing system relevant to this change (broadly explore surrounding code for this). Include a deep background for beginners (skippable if reader is already familiar), then a narrower background directly relevant to the change.
 - **Intuition**: Explain the core intuition for the code change. Focus on essence, not full detail. Use concrete examples with toy data. Use figures and diagrams liberally.
 - **Code**: High-level walkthrough of the changes to the code. Group/order changes in an understandable way.
