@@ -1,7 +1,7 @@
 {
   "name": "sdlc-implementation",
   "description": "Skills for the implementation phase of the software development lifecycle — from brainstorming to merged PR",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "author": {
     "name": "Daniel Volnitsky"
   }
