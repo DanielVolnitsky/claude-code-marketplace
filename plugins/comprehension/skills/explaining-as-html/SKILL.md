@@ -7,7 +7,7 @@ disable-model-invocation: true
 model: opus
 ---
 
-# Explain Diff HTML
+# Explain as HTML
 
 Make a rich, interactive explanation of the specified topic.
 
@@ -19,17 +19,21 @@ Make a rich, interactive explanation of the specified topic.
 - **Code**: High-level walkthrough of the changes to the code. Group/order changes in an understandable way. Opened with diagram/diagrams when appropriate
 - **Quiz**: Up to ten interactive multiple-choice questions testing the reader's understanding of the PR, count depending on change scope. Medium difficulty — needs real understanding of the substance, not gotchas. On click, show correct/incorrect and feedback.
 
+Additional sections are welcomed as long as they contribute to the quality of the explanation.
+
 ## Format
 
 - Single self-contained HTML file with inline CSS and JavaScript. One long page with section headers and a table of contents. No tabs for top-level structure. Basic responsive styling for phone viewing.
 - Save the file in a global location outside the code repo (e.g. `/tmp/`), filename starting with today's date in `YYYY-MM-DD-` format so files stay time-sorted and out of version control. Example: `/tmp/2026-01-12-explanation-<slug>.html`.
 - Write with the clarity and flow of Martin Kleppmann — engaging, classic style, smooth transitions between sections.
-- Diagrams:
-  - Mermaid is a preferable diagram as a code implementation.
-  - Reuse a small number of diagram families throughout (e.g. simplified UI mockups for UI changes, system diagrams showing data flow between components with example data).
-  - No ASCII diagrams — always mermaid or simple HTML/CSS designs, HTML lists for lists of things.
-  - Code blocks: always use `<pre>` tags. If using a custom styled div instead, it must have `white-space: pre-wrap` in its CSS or the browser collapses newlines. Before saving, scan every code block's CSS and confirm it includes `white-space: pre` or `pre-wrap`.
 - Use callouts for key concepts, definitions, and important edge cases.
+
+### Diagrams
+
+- Mermaid is a preferable diagram as a code implementation;
+- Reuse a small number of diagram families throughout (e.g. simplified UI mockups for UI changes, system diagrams showing data flow between components with example data);
+- No ASCII diagrams — always mermaid or simple HTML/CSS designs, HTML lists for lists of things;
+- Code blocks: always use `<pre>` tags. If using a custom styled div instead, it must have `white-space: pre-wrap` in its CSS or the browser collapses newlines. Before saving, scan every code block's CSS and confirm it includes `white-space: pre` or `pre-wrap`.
 
 ## Quality rules
 
@@ -51,4 +55,12 @@ Treat quiz design as part of the explanation, not decoration. Before emitting th
 
 ## Requirements
 
-- **Can be read in ~5 minutes** by an average human reader without losing any important detail. Human will ask you to expand the first version with details if needed.
+### Time to read by human
+
+Default requirement is the page **can be read in ~5 minutes** by an average human reader without losing any important detail:
+
+- depth can be moved behind expanders with appropriate labels;
+- page header states the budget so the reader knows what they're committing to;
+- quiz and diagrams can be excluded from WPM calculations to fit into the target 'time to read'.
+
+Human will ask you to expand the current version with details if needed.
