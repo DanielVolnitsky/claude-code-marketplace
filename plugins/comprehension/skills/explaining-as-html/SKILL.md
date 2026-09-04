@@ -52,6 +52,7 @@ Treat quiz design as part of the explanation, not decoration. Before emitting th
 ## Discipline
 
 - **Show, do not tell**: people learn better from words plus pictures/diagrams than from words alone;
+- You must write in **ASD-STE100 style**. Readers of this text are software engineers with limited English, and a sentence they misread becomes a maintenance error, so every deviation from these rules is a safety defect, not a style choice.
 
 ## Requirements
 
