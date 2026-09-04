@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jira Webhooks in Astra — and where they stop</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#fbfaf7; --fg:#1c1c1e; --muted:#5f6368; --rule:#e2ddd4;
+    --card:#ffffff; --accent:#2f6f4f; --accent-soft:#eaf3ee;
+    --warn:#8a5a12; --warn-soft:#fdf3e0; --stop:#8d2f2f; --stop-soft:#fbeceb;
+    --code-bg:#f4f2ed; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#16181a; --fg:#eceae5; --muted:#a3a3a3; --rule:#33373b;
+      --card:#1e2124; --accent:#7dc79f; --accent-soft:#1f2a24;
+      --warn:#e0b063; --warn-soft:#2b2419; --stop:#e79b95; --stop-soft:#2c1e1e;
+      --code-bg:#111315;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:17px/1.62 Georgia,"Iowan Old Style","Times New Roman",serif;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:820px; margin:0 auto; padding:32px 20px 96px}
+  h1{font-size:2.05rem; line-height:1.2; margin:0 0 .3em; letter-spacing:-.01em}
+  h2{font-size:1.42rem; margin:2.4em 0 .5em; padding-bottom:.25em; border-bottom:1px solid var(--rule)}
+  h3{font-size:1.08rem; margin:1.8em 0 .4em; font-family:system-ui,sans-serif}
+  p{margin:.75em 0}
+  a{color:var(--accent)}
+  .lede{color:var(--muted); font-style:italic; margin:.2em 0 1.4em}
+  .budget{
+    display:inline-block; font-family:system-ui,sans-serif; font-size:.78rem;
+    background:var(--accent-soft); color:var(--accent); border:1px solid var(--rule);
+    padding:4px 10px; border-radius:999px; margin-bottom:8px;
+  }
+  code{font-family:var(--mono); font-size:.86em; background:var(--code-bg); padding:1px 5px; border-radius:4px}
+  pre{
+    font-family:var(--mono); font-size:.8rem; line-height:1.5;
+    background:var(--code-bg); border:1px solid var(--rule); border-radius:8px;
+    padding:14px 16px; overflow-x:auto; white-space:pre;
+  }
+  pre code{background:none; padding:0; font-size:1em}
+  .call{
+    border-left:3px solid var(--accent); background:var(--accent-soft);
+    padding:12px 16px; margin:1.2em 0; border-radius:0 8px 8px 0;
+    font-family:system-ui,sans-serif; font-size:.92rem;
+  }
+  .call.warn{border-color:var(--warn); background:var(--warn-soft)}
+  .call.stop{border-color:var(--stop); background:var(--stop-soft)}
+  .call b{font-family:system-ui,sans-serif}
+  .card{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:6px 18px; margin:1.2em 0}
+  ul,ol{padding-left:1.3em}
+  li{margin:.32em 0}
+  table{width:100%; border-collapse:collapse; font-family:system-ui,sans-serif; font-size:.85rem; margin:1.1em 0}
+  th,td{text-align:left; padding:7px 9px; border-bottom:1px solid var(--rule); vertical-align:top}
+  th{color:var(--muted); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em}
+  details{border:1px solid var(--rule); background:var(--card); border-radius:8px; padding:10px 16px; margin:1em 0}
+  details summary{
+    cursor:pointer; font-family:system-ui,sans-serif; font-size:.88rem;
+    color:var(--accent); font-weight:600; list-style-position:outside;
+  }
+  details[open] summary{margin-bottom:.5em}
+  .mermaid{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:14px; margin:1.3em 0; text-align:center; overflow-x:auto}
+  nav.toc{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:12px 22px; font-family:system-ui,sans-serif; font-size:.9rem}
+  nav.toc ol{margin:.4em 0; padding-left:1.2em}
+  .tag{font-family:system-ui,sans-serif; font-size:.7rem; padding:2px 7px; border-radius:4px; border:1px solid var(--rule); color:var(--muted); white-space:nowrap}
+  /* quiz */
+  .q{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:16px 18px; margin:1.1em 0; font-family:system-ui,sans-serif}
+  .q .stem{font-weight:600; font-size:.95rem; margin-bottom:10px}
+  .opt{
+    display:block; width:100%; text-align:left; font:inherit; font-size:.88rem;
+    background:var(--bg); color:var(--fg); border:1px solid var(--rule);
+    border-radius:7px; padding:9px 12px; margin:6px 0; cursor:pointer;
+  }
+  .opt:hover:not(:disabled){border-color:var(--accent)}
+  .opt:disabled{cursor:default; opacity:.95}
+  .opt.right{border-color:var(--accent); background:var(--accent-soft); font-weight:600}
+  .opt.wrong{border-color:var(--stop); background:var(--stop-soft)}
+  .fb{font-size:.85rem; margin-top:9px; padding:10px 12px; border-radius:7px; background:var(--accent-soft); display:none}
+  .fb.shown{display:block}
+  .score{font-family:system-ui,sans-serif; font-size:.9rem; color:var(--muted); margin-top:14px}
+  footer{margin-top:3em; padding-top:1em; border-top:1px solid var(--rule); color:var(--muted); font-size:.82rem; font-family:system-ui,sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<span class="budget">~5 minute read · diagrams &amp; quiz extra · depth folded into expanders</span>
+<h1>Jira webhooks in Astra</h1>
+<p class="lede">How a comment on a Jira issue becomes an agent turn — and the eleven places where that path deliberately, or accidentally, stops.</p>
+
+<nav class="toc">
+<strong>Contents</strong>
+<ol>
+  <li><a href="#tldr">TL;DR</a></li>
+  <li><a href="#background">Background: what Astra already had</a></li>
+  <li><a href="#intuition">Intuition: a gauntlet of gates</a></li>
+  <li><a href="#code">Code: the four files that matter</a></li>
+  <li><a href="#limits">Current restrictions</a></li>
+  <li><a href="#quiz">Quiz</a></li>
+</ol>
+</nav>
+
+<h2 id="tldr">TL;DR</h2>
+
+<p>Astra can now be summoned from a Jira issue. You write <code>bwai: draft the release notes</code> as a comment; Jira Data Center posts the event to <code>POST /api/webhooks/jira</code>; the API finds the agents that declare the <code>jira-comment</code> trigger, opens (or reuses) a session bound to that issue key, and runs one agent turn. The whole comment thread on an issue is one conversation.</p>
+
+<p>The interesting part is not the happy path — it is how many gates the request passes through, and that the endpoint tells you which gate stopped it. Unlike the older GitLab webhook, which answers <code>202</code> before deciding anything, the Jira endpoint decides <em>synchronously</em> and returns a real status: <code>404</code> when no agent claims the trigger, <code>409</code> when a turn is already running on that issue, <code>200 ignored</code> when nobody typed a keyword.</p>
+
+<ul>
+  <li><b>What</b> — one endpoint, comment events only, fanning out to every environment-matched agent runtime.</li>
+  <li><b>Why</b> — let a human trigger an agent from where the work is discussed, without leaving Jira.</li>
+  <li><b>How</b> — synchronous admission (parse → filter → keyword → session → lock), then the agent turn deferred to a FastAPI background task.</li>
+  <li><b>Watch out</b> — the endpoint is unauthenticated, the reply-loop guard is content-based, and the busy lock lives in one process's memory.</li>
+</ul>
+
+<div class="mermaid">
+flowchart LR
+  U["Human comment<br/>“bwai: cut a release”"] --> J[Jira Data Center]
+  J -->|"POST /api/webhooks/jira<br/>no auth header"| A["Astra API<br/>(single pod)"]
+  A -->|"admit: parse, env, keyword,<br/>session, lock"| A
+  A -->|"202 accepted<br/>{dispatched:[dev-release]}"| J
+  A -.->|background task| C["AgentCore runtime<br/>dev-release"]
+  C -->|"agent posts a comment<br/>(no keyword!)"| J
+  style A fill:#eaf3ee,stroke:#2f6f4f
+  style C fill:#fdf3e0,stroke:#8a5a12
+</div>
+
+<h2 id="background">Background: what Astra already had</h2>
+
+<details>
+<summary>New to Astra? Start here (skip if you know the three apps)</summary>
+<p>Astra runs Claude Code in the cloud. Three apps: <code>web</code> (React chat UI), <code>api</code> (FastAPI — sessions, auth, proxying to the runtime), and <code>core</code> (an AWS Bedrock AgentCore runtime that actually executes Claude Code). Each configured agent is deployed as one ARM64 runtime <em>per environment</em>, so the same agent <code>release</code> may exist as <code>dev-release</code> and <code>uat-release</code>. Agents are declared in <code>agents/agents.yaml</code>; the API discovers their live runtimes from AWS and caches them for five minutes.</p>
+<p>A <strong>session</strong> is a conversation with an agent. Sessions can carry a <code>ref</code> — a namespaced external key. That is the trick that makes webhooks conversational: look up the session by <code>ref</code>, and the second event continues the first event's thread instead of starting over.</p>
+</details>
+
+<p>Before this change, one webhook already existed: GitLab. It set the shape that Jira inherits — a <code>ref</code>-keyed session, a <code>triggers</code> list in <code>agents.yaml</code>, fan-out to every discovered runtime, and an in-process lock so one session never runs two turns at once.</p>
+
+<p>It also set a shape worth <em>not</em> inheriting. The GitLab endpoint returns <code>202</code> immediately and then decides in the background. If the session was busy, or the deployment is in local mode, or no agent matched, GitLab is told "accepted" and the outcome is only a log line. Fine when a human is watching CI; useless when a human is waiting on a Jira ticket.</p>
+
+<p>So the change refactored the shared half out of the GitLab module into two new files — <code>runner.py</code> (session resolution, lock, dispatch) and <code>env_binding.py</code> (which runtimes may answer) — and gave Jira a second admission model on top of them.</p>
+
+<div class="call">
+<b>Definition — admission.</b> Everything that happens before the agent turn: resolve the session, title it, check the deployment can run agents, take the lock, render the prompt. GitLab does this <em>after</em> replying (async-202). Jira does it <em>before</em> (synchronous), and only defers the turn itself. <code>runner.py</code> says plainly that the synchronous pair is the model to prefer for new providers.
+</div>
+
+<h2 id="intuition">Intuition: a gauntlet of gates</h2>
+
+<p>Think of the endpoint as a corridor of doors. A comment must open every one. Each door has a name, and that name is what comes back in the response body — which is why debugging a silent agent is a matter of reading one JSON field.</p>
+
+<div class="mermaid">
+flowchart TD
+  S["Jira POST"] --> G1{"valid JSON?"}
+  G1 -->|no| R1["400 invalid / invalid_json"]
+  G1 -->|yes| G2{"comment event?<br/>webhookEvent field"}
+  G2 -->|no| R2["200 ignored / event_not_handled"]
+  G2 -->|yes| G3{"comment object present?"}
+  G3 -->|no| R3["422 invalid / no_comment"]
+  G3 -->|yes| G4{"issue.key present?"}
+  G4 -->|no| R4["422 invalid / no_issue_key"]
+  G4 -->|yes| G5{"any agent declares<br/>jira-comment?"}
+  G5 -->|no| R5["404 not_found / no_trigger_agent"]
+  G5 -->|yes| G6{"env filter leaves<br/>a runtime?"}
+  G6 -->|no| R6["200 ignored / env_not_bound"]
+  G6 -->|yes| G7{"keyword in comment body?"}
+  G7 -->|no| R7["200 ignored / no_mention"]
+  G7 -->|yes| G8{"session + lock<br/>per runtime"}
+  G8 -->|none admitted| R8["409 busy · 503 unavailable · 500 error"]
+  G8 -->|"&ge;1 admitted"| OK["202 accepted<br/>dispatched + skipped"]
+  style OK fill:#eaf3ee,stroke:#2f6f4f
+  style R7 fill:#fdf3e0,stroke:#8a5a12
+  style R6 fill:#fdf3e0,stroke:#8a5a12
+</div>
+
+<h3>Toy example: one comment, two runtimes</h3>
+
+<p>Suppose <code>release</code> is deployed twice — <code>dev-release</code> and <code>uat-release</code> — and neither sets <code>same_runtime_env_bound</code>. Someone comments on <code>BWATDFNG-58579</code>:</p>
+
+<pre><code>{
+  "webhookEvent": "comment_created",
+  "issue":   { "key": "BWATDFNG-58579",
+               "fields": { "summary": "Webhook for Jira comments" } },
+  "comment": { "id": "884211",
+               "author": { "name": "ihor_penskyy" },
+               "body": "bwai: draft the release notes" }
+}</code></pre>
+
+<p>Both runtimes pass the env filter. Both match the keyword. <code>dev-release</code> is idle, so it takes the lock; <code>uat-release</code> happens to already be running a turn on the same issue. The response is <em>partial</em>, and says so:</p>
+
+<pre><code>202 Accepted
+{ "status": "accepted",
+  "dispatched": ["dev-release"],
+  "skipped": { "uat-release": "busy" } }</code></pre>
+
+<p>If <em>no</em> runtime had been admitted, there would be no single reason to report — so the module keeps one ordered table and picks the most severe: a broken session (<code>500</code>) outranks a misconfigured deployment (<code>503</code> local mode), which outranks a turn merely already running (<code>409</code>).</p>
+
+<div class="call warn">
+<b>Edge case worth internalising.</b> <code>env_not_bound</code> is a <code>200</code>, not an error. When an agent opts into <code>same_runtime_env_bound</code>, exactly one deployment answers and every other deployment is <em>supposed</em> to shrug. Treating that as a failure would make every non-owning environment log noise for every comment.
+</div>
+
+<h3>The reply loop, and the thin thread holding it shut</h3>
+
+<p>Here is the sharpest idea in the change. The agent answers by posting a comment on the issue. That comment fires the webhook again. Nothing structural distinguishes the agent's comment from a human's — Jira does not mark it as bot-authored in a way the endpoint checks.</p>
+
+<p>What breaks the loop is content: the agent's own comment contains no invocation keyword, so it invokes nothing. The guard is a <em>convention the agent must keep</em>, not an invariant the code enforces.</p>
+
+<div class="mermaid">
+sequenceDiagram
+  participant H as Human
+  participant J as Jira
+  participant A as Astra API
+  participant R as Agent runtime
+  H->>J: "bwai: cut a release"
+  J->>A: comment_created
+  A->>R: dispatch turn
+  R->>J: comment "Release notes drafted: ..."
+  J->>A: comment_created (the agent's own reply)
+  A-->>J: 200 ignored / no_mention
+  Note over A,J: loop stops only because the reply<br/>contains no keyword
+</div>
+
+<p>Because the protection is content-based and therefore fragile, the config loader defends what it can at startup: an agent with the <code>jira-comment</code> trigger <em>must</em> set <code>direct_invocations_only: true</code>, and that in turn <em>must</em> have a non-empty <code>invocation_keywords</code>. <code>load_agents</code> raises rather than boot a config that would remove the guard.</p>
+
+<h2 id="code">Code: the four files that matter</h2>
+
+<div class="mermaid">
+flowchart TD
+  subgraph provider["provider-specific"]
+    JI["jira.py<br/>parse · keyword · statuses · prompt"]
+    GL["gitlab.py<br/>parse · mention · prompt"]
+  end
+  subgraph shared["shared (new)"]
+    EB["env_binding.py<br/>which runtimes may answer"]
+    RN["runner.py<br/>session · lock · admission"]
+  end
+  DP["dispatch.py<br/>invoke runtime · cost · errors"]
+  JI --> EB
+  GL --> EB
+  JI -->|"admit_agent_event<br/>+ dispatch_admitted_event"| RN
+  GL -->|run_agent_for_event| RN
+  RN --> DP
+  style shared fill:#eaf3ee,stroke:#2f6f4f
+</div>
+
+<table>
+<tr><th>File</th><th>Owns</th><th>Key detail</th></tr>
+<tr><td><code>routes/webhooks/jira.py</code></td><td>Payload parsing, gates, status contract, prompt rendering</td><td>Accepts <em>two</em> Jira payload shapes; the whole status vocabulary is <code>Literal</code> types, so a typo in a reason slug fails type-check.</td></tr>
+<tr><td><code>routes/webhooks/runner.py</code></td><td>Session resolution, titling, lock, both admission models</td><td><code>AdmittedEvent</code> is a value that <em>owns a held lock</em>. Its docstring states the contract: dispatch it or release it — dropping it wedges the session.</td></tr>
+<tr><td><code>routes/webhooks/env_binding.py</code></td><td>Runtime selection per environment</td><td>Extracted from <code>gitlab_env_filter.py</code>; the <code>same_runtime_env_bound</code> accessor is injected, so each provider reads its own flag.</td></tr>
+<tr><td><code>agents/registry.py</code></td><td>Startup validation</td><td><code>_validate_integrations</code> refuses to load a config whose reply-loop guard is missing.</td></tr>
+</table>
+
+<details>
+<summary>The lock-ownership dance in <code>_admit_all</code> and <code>_queue_admitted</code></summary>
+<p>Fan-out makes lock handling genuinely tricky, because admission takes locks one runtime at a time and the request can still fail afterwards. Two <code>except</code> blocks cover it, and both release <em>every</em> lock taken so far:</p>
+<pre><code># jira.py — admitting runtime N raises after 1..N-1 took locks
+try:
+    for agent in agents:
+        outcome = await admit_agent_event(...)
+        ...
+except Exception:
+    for event in admitted:
+        await release_admitted_event(event)
+    raise</code></pre>
+<pre><code># jira.py — if queueing fails, FastAPI runs NO background task,
+# so even already-queued events must be released here
+try:
+    for event in admitted:
+        background_tasks.add_task(dispatch_admitted_event, event)
+except Exception:
+    for event in admitted:
+        await release_admitted_event(event)
+    raise</code></pre>
+<p>Both matter because session locks have no TTL. A missed release does not heal; it holds that session until the process restarts.</p>
+</details>
+
+<details>
+<summary>Keyword matching, and why <code>subwai:</code> does not match <code>bwai:</code></summary>
+<pre><code>alternatives = "|".join(re.escape(k) for k in cfg.invocation_keywords)
+return bool(re.search(rf"(?&lt;!\w)({alternatives})", comment_body, re.IGNORECASE))</code></pre>
+<p>The negative lookbehind requires the keyword to <em>start</em> a word. Case-insensitive, keywords are regex-escaped, and there is no trailing boundary — so <code>bwai:</code> matches anywhere a word begins, including mid-sentence and inside quoted text.</p>
+<p>Note the fail-closed branch: if <code>direct_invocations_only</code> is true but <code>invocation_keywords</code> is empty, the function returns <code>False</code> rather than matching everything. Startup validation should make this unreachable; the code refuses to rely on that.</p>
+</details>
+
+<details>
+<summary>Prompt shape, and what is deliberately left out</summary>
+<p><code>_build_comment_prompt</code> renders a flat, YAML-ish block: session id, event type, a fixed allowlist of issue fields (<code>summary</code>, <code>issuetype</code>, <code>status</code>, <code>priority</code>, <code>parent</code>, <code>fixVersions</code>, <code>components</code>, <code>labels</code>, assignee/reporter emails), then comment id, author, and the two free-text blocks — description and comment body.</p>
+<p>A full Jira issue payload carries every custom field and would dominate the agent's context. An agent that needs more reads the issue through the Jira API using <code>issue.key</code>. Note also the logging discipline: on a <code>no_mention</code> skip the code logs the issue key, comment id, and author — never the body, because Jira comments routinely carry customer data.</p>
+</details>
+
+<h2 id="limits">Current restrictions</h2>
+
+<p>Some of these are design decisions with a stated rationale; others are the edges the first version simply has not reached yet. Worth separating the two.</p>
+
+<h3>Deliberate scope</h3>
+
+<table>
+<tr><th>Restriction</th><th>Consequence</th></tr>
+<tr><td><b>Comment creation only</b></td><td>Comment <em>edits</em> and deletions, issue creation, field changes, and status transitions all return <code>200 ignored / event_not_handled</code>. Editing a comment to add <code>bwai:</code> does nothing.</td></tr>
+<tr><td><b>Jira Data Center only</b></td><td>The author is read as <code>comment.author.name</code>, falling back to <code>.key</code>, then the top-level acting <code>user.name</code>. Jira Cloud identifies users by <code>accountId</code>, so a Cloud payload yields an empty author.</td></tr>
+<tr><td><b>Fixed field allowlist in the prompt</b></td><td>No custom fields, no attachments, no prior comments. The agent sees <em>this</em> comment plus the issue header, and must call the Jira API for anything else.</td></tr>
+<tr><td><b>Direct invocation is mandatory</b></td><td>An agent cannot be configured to answer every comment on an issue — startup validation forbids it, because that is the reply loop.</td></tr>
+<tr><td><b>One turn per issue per agent</b></td><td>A second comment while a turn is running gets <code>409 busy</code>. It is dropped, not queued, so the follow-up instruction is lost.</td></tr>
+</table>
+
+<h3>Sharper edges</h3>
+
+<div class="call stop">
+<b>1. The endpoint is unauthenticated.</b> No shared secret, no signature check, no JWT. <code>_triggered_agents</code> notes it explicitly: "Webhook auth is via the endpoint URL, not JWT, so <code>allowed_roles</code> is bypassed here." The API README says to restrict access at the network level. So the URL is the credential, and <code>allowed_roles</code> — the mechanism that keeps <code>release</code> to the <code>dev</code> role in the UI — does not apply on this path.
+</div>
+
+<div class="call stop">
+<b>2. Anyone who can comment can invoke the agent.</b> There is no author allowlist and no human check. A Jira automation rule, an integration bot, or any user with comment permission on the issue can start an agent turn that runs with the agent's own credentials.
+</div>
+
+<div class="call warn">
+<b>3. The loop guard is a convention.</b> Nothing stops the agent from quoting a keyword back — <code>"you asked: bwai: cut a release"</code> re-invokes it, and the reply is itself a comment. Both the module docstring and the README state the rule in bold; only the config-level part of it is machine-checked.
+</div>
+
+<div class="call warn">
+<b>4. No idempotency.</b> <code>comment.id</code> reaches the prompt but is never used for deduplication. A Jira retry, or a manual redelivery of the same event, runs the turn a second time.
+</div>
+
+<div class="call warn">
+<b>5. Delivery is best-effort, in-process.</b> The turn runs as a FastAPI <code>BackgroundTask</code> in the API pod. A restart or deploy between the <code>202</code> and the turn silently loses it. There is no queue, no retry, and no dead-letter path.
+</div>
+
+<div class="call warn">
+<b>6. The busy lock is per-process.</b> <code>try_acquire_session_run</code> is an in-memory <code>set</code> guarded by an <code>asyncio.Lock</code>. Today the Helm chart runs <code>replicaCount: 1</code>, so the guard holds — but it is a scaling constraint, not a distributed lock. Two replicas would let two turns run on one session.
+</div>
+
+<div class="call warn">
+<b>7. Failures after the <code>202</code> are invisible in Jira.</b> If the agent turn throws, <code>record_webhook_error</code> writes it to the session's <code>error_message</code>. The commenter sees no reply and no explanation — they must open Astra to find out why.
+</div>
+
+<div class="call">
+<b>8. Fan-out is the default, and duplicates are opt-out.</b> <code>release</code> in <code>agents.yaml</code> does not set <code>same_runtime_env_bound</code>, so every discovered runtime for the slug is invoked. If both <code>dev-release</code> and <code>uat-release</code> are live, one comment gets two agents working on the same issue. That is also true in reverse: the flag is the fix, and it must be set per agent.
+</div>
+
+<div class="call">
+<b>9. Runtime discovery is cached for five minutes.</b> A freshly deployed runtime may not answer comments yet, and <code>404 no_trigger_agent</code> can mean "discovery has not caught up" rather than "misconfigured".
+</div>
+
+<div class="call">
+<b>10. Local development cannot exercise the turn.</b> Without AgentCore the admission stage rejects with <code>503 unavailable</code>. The gates are testable locally; the agent turn is not.
+</div>
+
+<h2 id="quiz">Quiz</h2>
+<p style="font-family:system-ui,sans-serif;font-size:.9rem;color:var(--muted)">Seven questions. Each needs a real read of the section above, not a keyword match.</p>
+<div id="quiz"></div>
+<div class="score" id="score"></div>
+
+<footer>
+Generated 2026-09-03 · sources: <code>apps/api/src/routes/webhooks/{jira,runner,env_binding,dispatch}.py</code>, <code>apps/api/src/agents/{models,registry}.py</code>, <code>apps/api/README.md</code>, <code>agents/agents.yaml</code>, <code>infrastructure/terraform/main/helm_chart/values.yaml</code> · commit <code>6c980f24</code>
+</footer>
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad:true,
+  theme: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'neutral',
+  flowchart:{useMaxWidth:true, htmlLabels:true}
+});
+
+const QUESTIONS = [
+  {
+    stem: "A comment on BWATDFNG-1 contains no invocation keyword, and two runtimes are matched. What does the endpoint return?",
+    options: [
+      {t:"200 with status ignored and reason no_mention", ok:true},
+      {t:"202 with an empty dispatched list and both runtimes in skipped", ok:false},
+      {t:"422 with status invalid and reason no_comment", ok:false},
+      {t:"404 with status not_found and reason no_trigger_agent", ok:false}
+    ],
+    fb:"The keyword gate runs before admission, so no lock is taken and nothing is dispatched — it is an ordinary 200 ignored / no_mention. A 202 would imply at least one turn was queued; the 422 and 404 belong to earlier gates (missing comment object, no agent declaring the trigger)."
+  },
+  {
+    stem: "Why is env_not_bound answered with 200 rather than an error status?",
+    options: [
+      {t:"Because Jira retries any 4xx response, which would amplify the load", ok:false},
+      {t:"Because the env filter runs after the session lock is already released", ok:false},
+      {t:"Because with same_runtime_env_bound exactly one deployment answers and the rest are meant to shrug", ok:true},
+      {t:"Because a missing runtime is logged as a warning, and warnings never map to 4xx", ok:false}
+    ],
+    fb:"It is normal, expected behaviour: every deployment that is not the owning one sees each comment and correctly does nothing. Treating that as failure would turn routine operation into error noise. The warning log is a separate concern — it fires when a bound slug has no matching runtime at all."
+  },
+  {
+    stem: "Admission takes a lock for runtime A, then raises while admitting runtime B. What must happen to A's lock, and why?",
+    options: [
+      {t:"Nothing — the lock expires on its own after a short TTL", ok:false},
+      {t:"It must be released explicitly, because session locks have no TTL and nothing downstream will run", ok:true},
+      {t:"It is released by dispatch_admitted_event when FastAPI drains the background tasks", ok:false},
+      {t:"It transfers to runtime B so the retry reuses the same session", ok:false}
+    ],
+    fb:"_admit_all's except block releases every AdmittedEvent taken so far, precisely because the lock is an in-memory entry with no expiry and the error stops the request before any dispatch runs. Leaving it wedges that session until the process restarts."
+  },
+  {
+    stem: "An agent posts a reply comment that quotes the user: \"you asked: bwai: cut a release\". What happens?",
+    options: [
+      {t:"Nothing — the payload's author differs from the original commenter, so it is skipped", ok:false},
+      {t:"Nothing — startup validation guarantees agent replies cannot match a keyword", ok:false},
+      {t:"It is skipped as a duplicate, because comment.id deduplicates redelivered events", ok:false},
+      {t:"The keyword matches, so the agent invokes itself again", ok:true}
+    ],
+    fb:"The guard is purely content-based: the endpoint checks for a keyword at a word start, anywhere in the body, including quoted text. There is no author-based bot filter and no comment.id deduplication. Startup validation only enforces that the keyword mechanism is configured, not that the agent honours it."
+  },
+  {
+    stem: "One comment fans out; the session for one runtime cannot be created, and another runtime is busy. No runtime is admitted. What status comes back?",
+    options: [
+      {t:"409, because busy is the only reason with a dedicated status code", ok:false},
+      {t:"500, because session creation is the most severe reason in the ordered table", ok:true},
+      {t:"207, because the outcome is partial across runtimes", ok:false},
+      {t:"503, because a partly unusable fan-out counts as unavailable", ok:false}
+    ],
+    fb:"_REJECTION_RESPONSES is a single ordered table — session_creation_failed (500), then local_mode (503), then busy (409) — and the first reason present wins. Keeping precedence and status in one table is what stops them disagreeing. A partial outcome would be a 202 with a skipped map; here nothing was admitted."
+  },
+  {
+    stem: "The Helm chart runs replicaCount: 1. What does that fact actually protect?",
+    options: [
+      {t:"The five-minute runtime discovery cache, which would otherwise go stale per pod", ok:false},
+      {t:"The unauthenticated endpoint, since one pod means one reachable URL", ok:false},
+      {t:"The one-turn-per-session guard, since the lock is an in-memory set rather than a distributed lock", ok:true},
+      {t:"The background task, which would otherwise be executed by every replica", ok:false}
+    ],
+    fb:"try_acquire_session_run keeps an in-process set, so the guarantee is per pod. With a single replica the guard is sound; adding replicas would let two turns run on one session. Discovery caching is per pod but harmless, and only the pod that received the request runs its background task."
+  },
+  {
+    stem: "Why does the Jira prompt render a fixed list of issue fields instead of the raw payload?",
+    options: [
+      {t:"Untyped Jira JSON cannot be rendered without a validated Pydantic model", ok:false},
+      {t:"A full issue carries every custom field and would dominate the agent's context", ok:true},
+      {t:"Custom fields routinely hold customer data that must never reach the agent", ok:false},
+      {t:"The runtime rejects prompts above a fixed size, so the payload must be trimmed", ok:false}
+    ],
+    fb:"It is a context-budget decision, stated in _issue_lines: an agent that needs more reads the issue through the Jira API using issue.key. The privacy discipline is real but applies to logging — the body and description are excluded from log lines, not from the prompt."
+  }
+];
+
+function shuffle(arr, seed){
+  const a = arr.slice();
+  let s = seed;
+  for(let i=a.length-1;i>0;i--){
+    s = (s*1103515245 + 12345) & 0x7fffffff;
+    const j = s % (i+1);
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+const container = document.getElementById('quiz');
+const scoreEl = document.getElementById('score');
+let answered = 0, correct = 0;
+
+QUESTIONS.forEach((q, qi) => {
+  const opts = shuffle(q.options, (qi+1)*7919);
+  const card = document.createElement('div');
+  card.className = 'q';
+  const stem = document.createElement('div');
+  stem.className = 'stem';
+  stem.textContent = (qi+1) + '. ' + q.stem;
+  card.appendChild(stem);
+  const fb = document.createElement('div');
+  fb.className = 'fb';
+  opts.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.type = 'button';
+    b.textContent = o.t;
+    b.addEventListener('click', () => {
+      const buttons = card.querySelectorAll('.opt');
+      buttons.forEach(x => { x.disabled = true; });
+      b.classList.add(o.ok ? 'right' : 'wrong');
+      if(!o.ok){
+        buttons.forEach((x, i) => { if(opts[i].ok) x.classList.add('right'); });
+      }
+      fb.textContent = (o.ok ? 'Correct. ' : 'Not quite. ') + q.fb;
+      fb.classList.add('shown');
+      answered++; if(o.ok) correct++;
+      scoreEl.textContent = `${correct} / ${answered} correct (${QUESTIONS.length} questions).`;
+    });
+    card.appendChild(b);
+  });
+  card.appendChild(fb);
+  container.appendChild(card);
+});
+</script>
+</body>
+</html>

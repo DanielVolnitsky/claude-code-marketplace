@@ -13,16 +13,17 @@ Make a rich, interactive explanation of the specified topic.
 
 ## Sections
  
-- **TL;DR** (mandatory, always first): A few sentences plus a short bullet list covering what, why, and how. Self-contained — understandable without reading any other section. Supported by diagram/diagrams when appropriate;
+- **TL;DR** (mandatory, always first): A few sentences plus a short bullet list covering what, why, and how. Self-contained — understandable without reading any other section. Supported by diagrams when appropriate;
 - **Background**: Explain the existing system relevant to this change (broadly explore surrounding code for this). Include a deep background for beginners (skippable if reader is already familiar), then a narrower background directly relevant to the change.
 - **Intuition**: Explain the core intuition for the topic. Focus on essence, not full detail. Use concrete examples with toy data. Use figures and diagrams liberally.
-- **Code**: High-level walkthrough of the changes to the code. Group/order changes in an understandable way. Opened with diagram/diagrams when appropriate
+- **Code**: High-level walkthrough of the changes to the code. Group/order changes in an understandable way. Opened with diagrams when appropriate
 - **Quiz**: Up to ten interactive multiple-choice questions testing the reader's understanding of the PR, count depending on change scope. Medium difficulty — needs real understanding of the substance, not gotchas. On click, show correct/incorrect and feedback.
 
 Additional sections are welcomed as long as they contribute to the quality of the explanation.
 
 ## Format
 
+- **Reference page** - `./example-artifact.html` - shows the preferred format. Follow its conventions.
 - Single self-contained HTML file with inline CSS and JavaScript. One long page with section headers and a table of contents. No tabs for top-level structure. Basic responsive styling for phone viewing.
 - Save the file in a global location outside the code repo (e.g. `/tmp/`), filename starting with today's date in `YYYY-MM-DD-` format so files stay time-sorted and out of version control. Example: `/tmp/2026-01-12-explanation-<slug>.html`.
 - Write with the clarity and flow of Martin Kleppmann — engaging, classic style, smooth transitions between sections.
