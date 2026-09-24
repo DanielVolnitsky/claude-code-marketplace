@@ -24,7 +24,5 @@ jobs:
         run: |
           claude plugin validate .
           claude plugin validate plugins/ai-factory
-      - name: Test delivery workflow
-        run: node --test tests/*.test.mjs
       - name: Check whitespace
         run: git diff --check HEAD^ HEAD

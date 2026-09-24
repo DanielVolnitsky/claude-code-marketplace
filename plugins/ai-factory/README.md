@@ -76,13 +76,7 @@ From the marketplace root, run:
 ```bash
 claude plugin validate .
 claude plugin validate plugins/ai-factory
-node --test tests/ai-factory-deliver.test.mjs
 ```
-
-Schema-checked adapters execute the actual script, covering input propagation,
-missing results, repair caps, draft state, polls, review reuse, provider routing,
-recovery, and cleanup. Real git fixtures check concurrent runs, branch locks, and
-preservation of staged, unstaged, and untracked changes.
 
 Model judgment and real hosting APIs require live testing. Before production,
 use authenticated Claude sessions and disposable GitHub/GitLab projects with CI:

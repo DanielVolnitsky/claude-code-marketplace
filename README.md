@@ -29,12 +29,10 @@ Every update runs `claude plugin validate .` (schema and layout baseline):
 # macOS / WSL / Git Bash
 claude plugin validate .
 claude plugin validate plugins/ai-factory
-node --test tests/*.test.mjs
 ```
 
 ```powershell
 # Windows (PowerShell)
 claude plugin validate .
 claude plugin validate plugins/ai-factory
-node --test tests/ai-factory-deliver.test.mjs
 ```
