@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "ai-factory",
-      "description": "An isolated workflow that implements, verifies, and delivers tasks to GitLab merge requests",
+      "description": "An isolated workflow that implements, verifies, and delivers tasks to GitHub pull requests or GitLab merge requests",
       "source": {
         "source": "git-subdir",
         "url": "https://github.com/DanielVolnitsky/claude-code-marketplace.git",

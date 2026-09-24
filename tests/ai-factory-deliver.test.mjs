@@ -12,7 +12,7 @@ const source = readFileSync(join(plugin, 'workflows/deliver.js'), 'utf8');
 // Claude's body supports top-level return, so run it in the same async shape.
 const program = new vm.Script(`(async () => { ${source.replace('export const meta', 'const meta')} })()`);
 const clone = value => JSON.parse(JSON.stringify(value));
-const mr = { iid: 7, url: 'https://gitlab.example/team/repo/-/merge_requests/7' };
+const review = { number: 7, url: 'https://gitlab.example/team/repo/-/merge_requests/7' };
 const models = {
   'preflight-gateway': ['sonnet', 'medium'],
   implementer: ['opus', 'high'],
@@ -23,15 +23,16 @@ const models = {
 const input = 'Add input validation';
 const preflight = {
   ready: true, worktreePath: '/tmp/repo.worktrees/codex/deliver-validation',
+  provider: 'gitlab', repository: { host: 'gitlab.example', path: 'team/repo' },
   branch: 'codex/deliver-validation', defaultBranch: 'main',
-  task: input, sourcePath: null, mr: null, fixList: [],
+  task: input, sourcePath: null, review: null, fixList: [],
 };
 const implemented = {
   summary: 'Added input validation.',
   gates: [{ command: 'node --test', status: 'passed', details: 'All tests passed.' }],
   findings: [],
 };
-const green = { status: 'success', pipelineUrl: 'https://gitlab.example/pipelines/8', findings: [] };
+const green = { status: 'success', url: 'https://gitlab.example/pipelines/8', findings: [] };
 
 // Check real output schemas against adapter results, including all required keys.
 function validate(schema, value) {
@@ -70,16 +71,28 @@ function defaults(role, data) {
   if (role === 'implementer') return clone(implemented);
   if (role === 'verifier') return { summary: 'Task and gates verified.', findings: [] };
   if (role === 'deliverer') return {
-    ok: true, mr: data.mr ?? clone(mr), headSha: 'abc123', draft: data.draft, findings: [],
+    ok: true, review: data.review ?? providerReview(data.provider, data.repository),
+    headSha: 'abc123', draft: data.draft, findings: [],
   };
   if (data.mode === 'inspect') return clone(green);
   return {
-    ok: true, mr: data.mr ?? clone(mr), draft: data.forceDraft || data.findings.length > 0,
+    ok: true, review: data.review ?? providerReview(data.provider, data.repository),
+    draft: data.forceDraft || data.findings.length > 0,
     ci: clone(data.ci), cleanedUp: true, retainedWorktree: null, findings: [],
   };
 }
 
-async function run({ args = input, respond = () => undefined } = {}) {
+function providerReview(provider, repository) {
+  return {
+    number: 7,
+    url: `https://${repository.host}/${repository.path}/${provider === 'github' ? 'pull' : '-/merge_requests'}/7`,
+  };
+}
+
+async function run({
+  args = input, respond = () => undefined, provider = 'gitlab',
+  repository = { host: `${provider}.example`, path: 'team/repo' },
+} = {}) {
   const calls = [], logs = [], phases = [];
   class DeterministicDate extends Date {
     constructor(...values) {
@@ -107,7 +120,9 @@ async function run({ args = input, respond = () => undefined } = {}) {
       const call = { role, data, prompt, options };
       calls.push(call);
       const response = await respond(call, calls);
-      const result = response === undefined ? defaults(role, data) : response;
+      const result = response === undefined
+        ? (role === 'preflight-gateway' ? { ...clone(preflight), provider, repository } : defaults(role, data))
+        : response;
       if (result !== null) validate(options.schema, result);
       return result;
     },
@@ -119,7 +134,7 @@ async function run({ args = input, respond = () => undefined } = {}) {
 test('plugin registration, literal metadata, and agent model ownership', () => {
   const manifest = JSON.parse(readFileSync(join(plugin, '.claude-plugin/plugin.json')));
   assert.equal(manifest.name, 'ai-factory');
-  assert.equal(manifest.version, '1.0.0');
+  assert.equal(manifest.version, '1.1.0');
   const marketplace = JSON.parse(readFileSync(join(root, '.claude-plugin/marketplace.json')));
   assert.equal(marketplace.plugins.find(p => p.name === 'ai-factory').source.path, 'plugins/ai-factory');
   assert.ok(source.startsWith('export const meta = {'));
@@ -137,7 +152,7 @@ test('plugin registration, literal metadata, and agent model ownership', () => {
   }
 });
 
-test('ready MR requires successful verification and CI, with every phase configured', async () => {
+test('ready review request requires successful verification and CI, with every phase configured', async () => {
   const { result, calls, phases } = await run();
   assert.equal(result.status, 'ready');
   assert.equal(result.retainedWorktree, null);
@@ -219,7 +234,7 @@ test('failed or blocked local gates cannot be erased by a clean verifier', async
 
 test('CI repairs are bounded, use fresh implementers, and never rerun verification', async () => {
   const { result, calls, logs } = await run({ respond: c => c.data?.mode === 'inspect' ? {
-    status: 'failed', pipelineUrl: 'https://gitlab.example/pipelines/9', findings: ['Build failed at compile.'],
+    status: 'failed', url: 'https://gitlab.example/pipelines/9', findings: ['Build failed at compile.'],
   } : undefined });
   assert.equal(result.status, 'draft');
   assert.equal(calls.filter(c => c.role === 'implementer').length, 3);
@@ -258,16 +273,16 @@ test('null, unknown, and exhausted CI never count as green or trigger speculativ
   }
 });
 
-test('a reused MR is passed to delivery and CI unchanged', async () => {
-  const existing = { ...mr, iid: 11 };
+test('a reused review request is passed to delivery and CI unchanged', async () => {
+  const existing = { ...review, number: 11 };
   const { calls } = await run({ respond: c => c.role === 'preflight-gateway'
-    ? { ...preflight, mr: existing } : undefined });
+    ? { ...preflight, review: existing } : undefined });
   for (const call of calls.filter(c => ['deliverer', 'ci-shepherd'].includes(c.role))) {
-    assert.deepEqual(call.data.mr, existing);
+    assert.deepEqual(call.data.review, existing);
   }
 });
 
-test('lost delivery results still trigger finalization and branch-based MR recovery', async () => {
+test('lost delivery results still trigger finalization and branch-based review request recovery', async () => {
   const { result, calls } = await run({ respond: c => c.role === 'deliverer' ? null : undefined });
   assert.equal(result.status, 'draft');
   assert.equal(calls.filter(c => c.data?.mode === 'inspect').length, 0);
@@ -281,7 +296,7 @@ test('a failed CI repair push cannot be hidden by prior CI evidence', async () =
   const { result, calls } = await run({ respond: c => {
     if (c.data?.mode === 'inspect') return { ...green, status: 'failed', findings: ['Broken build.'] };
     if (c.role === 'deliverer' && deliveries++ > 0) return {
-      ok: false, mr, headSha: null, draft: true, findings: ['Push rejected.'],
+      ok: false, review, headSha: null, draft: true, findings: ['Push rejected.'],
     };
   } });
   assert.equal(result.status, 'draft');
@@ -327,6 +342,108 @@ test('unsafe cleanup retains the worktree in the final report', async () => {
   } : undefined });
   assert.equal(result.retainedWorktree, preflight.worktreePath);
   assert.ok(logs.some(line => line.includes(`Retained worktree: ${preflight.worktreePath}`)));
+});
+
+for (const provider of ['github', 'gitlab']) {
+  const cli = provider === 'github' ? 'gh' : 'glab';
+  const otherCli = provider === 'github' ? 'glab' : 'gh';
+
+  test(`${provider}: routes only selected provider commands and returns a common review`, async () => {
+    const { result, calls } = await run({ provider });
+    assert.equal(result.status, 'ready');
+    assert.equal(result.provider, provider);
+    assert.deepEqual(Object.keys(result.review).sort(), ['number', 'url']);
+    assert.match(result.review.url, new RegExp(provider === 'github' ? '/pull/7$' : '/-/merge_requests/7$'));
+    assert.ok(!Object.hasOwn(result, 'mr'));
+    for (const call of calls.slice(1)) {
+      assert.equal(call.data.provider, provider);
+      const commands = call.data.providerCommands;
+      for (const group of Object.values(commands)) {
+        for (const [key, command] of Object.entries(group)) {
+          if (key === 'notes') continue;
+          assert.ok(command.startsWith(`${cli} `));
+          assert.ok(!command.startsWith(`${otherCli} `));
+          assert.match(command, /<host>/);
+          assert.match(command, /<path>/);
+        }
+      }
+      if (['implementer', 'verifier'].includes(call.role)) assert.deepEqual(commands, {});
+      if (call.role === 'deliverer') assert.deepEqual(Object.keys(commands), ['delivery']);
+      if (call.data.mode === 'inspect') assert.deepEqual(Object.keys(commands), ['ci']);
+      if (call.data.mode === 'finalize') assert.deepEqual(Object.keys(commands), ['delivery', 'ci']);
+    }
+  });
+
+  test(`${provider}: reuses the repository-local review number across delivery and CI`, async () => {
+    const repository = { host: `${provider}.example`, path: 'team/repo' };
+    const existing = { ...providerReview(provider, repository), number: 23 };
+    const { result, calls } = await run({
+      provider,
+      respond: c => c.role === 'preflight-gateway'
+        ? { ...preflight, provider, repository, review: existing } : undefined,
+    });
+    assert.deepEqual(result.review, existing);
+    for (const call of calls.filter(c => ['deliverer', 'ci-shepherd'].includes(c.role))) {
+      assert.deepEqual(call.data.review, existing);
+    }
+  });
+
+  test(`${provider}: CI still caps repairs and preserves draft on terminal failure`, async () => {
+    const { result, calls } = await run({
+      provider,
+      respond: c => c.data?.mode === 'inspect'
+        ? { status: 'failed', url: null, findings: ['Build failed.'] } : undefined,
+    });
+    assert.equal(result.status, 'draft');
+    assert.equal(calls.filter(c => c.role === 'implementer').length, 3);
+    assert.equal(calls.filter(c => c.role === 'verifier').length, 1);
+    assert.equal(calls.filter(c => c.role === 'deliverer').length, 3);
+    assert.equal(calls.filter(c => c.data?.mode === 'inspect').length, 3);
+    assert.ok(calls.at(-1).data.forceDraft);
+  });
+
+  test(`${provider}: missing verification, CI, or finalization is never ready`, async () => {
+    for (const missing of ['verifier', 'inspect', 'finalize']) {
+      const { result, calls } = await run({
+        provider,
+        respond: c => c.role === missing || c.data?.mode === missing ? null : undefined,
+      });
+      assert.equal(result.status, missing === 'finalize' ? 'unconfirmed' : 'draft');
+      if (missing === 'finalize') assert.equal(calls.filter(c => c.data?.mode === missing).length, 2);
+    }
+  });
+
+  test(`${provider}: preserves custom host and full repository path in every later phase`, async () => {
+    const repository = {
+      host: 'code.company.example',
+      path: provider === 'github' ? 'engineering/repo' : 'engineering/platform/repo',
+    };
+    const { result, calls } = await run({ provider, repository });
+    assert.equal(result.status, 'ready');
+    for (const call of calls.slice(1)) assert.deepEqual(call.data.repository, repository);
+    assert.ok(result.review.url.startsWith(`https://${repository.host}/${repository.path}/`));
+  });
+
+  test(`${provider}: a missing selected CLI returns the preflight fix list`, async () => {
+    const { result, calls } = await run({
+      provider,
+      respond: () => ({
+        ...preflight, provider, ready: false, worktreePath: null,
+        fixList: [`Install ${cli} and authenticate for the origin host.`],
+      }),
+    });
+    assert.equal(result.status, 'aborted');
+    assert.equal(calls.length, 1);
+    assert.deepEqual(result.findings, [`Install ${cli} and authenticate for the origin host.`]);
+  });
+}
+
+test('an unknown provider or missing repository identity cannot start implementation', async () => {
+  for (const fields of [{ provider: null }, { provider: 'unsupported' }, { repository: null }]) {
+    const { result, calls } = await run({ respond: () => ({ ...preflight, ...fields }) });
+    assert.equal(result.status, 'aborted');
+    assert.equal(calls.length, 1);
+  }
 });
 
 test('real git worktrees isolate parallel adapter runs and lock the same branch', async () => {
