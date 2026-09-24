@@ -14,6 +14,13 @@ claude plugin install code-review@waytoodanny
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Delivery Workflow
+
+The [ai-factory plugin](plugins/ai-factory/README.md) provides
+`/ai-factory:deliver <spec-path | task description>` to implement and independently
+verify a task in an isolated worktree, then deliver a GitLab MR with bounded CI
+repair. Unresolved work remains draft.
+
 ## Quality Gates
 
 Every update runs `claude plugin validate .` (schema and layout baseline):
@@ -21,11 +28,13 @@ Every update runs `claude plugin validate .` (schema and layout baseline):
 ```bash
 # macOS / WSL / Git Bash
 claude plugin validate .
-for f in scripts/*_validation.py; do python3 "$f"; done
+for plugin in plugins/*; do claude plugin validate "$plugin"; done
+node --test tests/*.test.mjs
 ```
 
 ```powershell
 # Windows (PowerShell)
 claude plugin validate .
-Get-ChildItem scripts\*_validation.py | ForEach-Object { python $_ }
+Get-ChildItem plugins -Directory | ForEach-Object { claude plugin validate $_.FullName }
+node --test tests/ai-factory-deliver.test.mjs
 ```
