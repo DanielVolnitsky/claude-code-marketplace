@@ -1,10 +1,10 @@
 # AI Factory
 
-`/ai-factory:deliver <spec-path | task description>` implements a task in a shared
-git worktree and delivers it to a supported remote VCS. An independent
-verifier checks the original input before delivery. The workflow finishes ready
-only after green CI is confirmed. Unresolved work is delivered as a draft with
-failure details.
+`/ai-factory:deliver <spec-path | task description>` implements and independently
+verifies a task in a shared worktree, then delivers it to a supported remote VCS.
+Confirmed green CI permits a ready result; unresolved findings keep it draft.
+
+## Setup
 
 ```bash
 claude plugin install ai-factory@waytoodanny
@@ -15,69 +15,59 @@ claude plugin install ai-factory@waytoodanny
 /ai-factory:deliver Add validation for empty project names
 ```
 
-Use Claude Code 2.1.281 or later and enable dynamic workflows. Preflight detects the
-provider from `origin` and requires only its CLI:
+Requires Claude Code **2.1.281+**, dynamic workflows enabled, a resolvable `origin`
+default branch, draft-review support, and the selected CLI authenticated for the
+origin host:
 
-| Provider | CLI | Review request | CI |
-| --- | --- | --- | --- |
-| GitHub | `gh` | Pull request | PR checks, including Actions and external check/status results |
-| GitLab | `glab` | Merge request | GitLab pipelines and jobs |
+| Provider | CLI | Review / CI |
+| --- | --- | --- |
+| GitHub | `gh` | PR / Actions and external checks or statuses |
+| GitLab | `glab` | MR / pipelines and jobs |
 
-Authenticate the selected CLI for the origin host. The origin default branch must
-resolve, and the repository must support draft review requests. Custom GitHub
-Enterprise and GitLab hosts are confirmed through their repository APIs.
-Unsupported or unconfirmed hosts fail preflight with a fix list.
+For unattended runs, use auto/bypass mode or allow the workflow, file edits,
+`git`, selected CLI, setup commands, and quality gates. The workflow neither
+changes permissions nor requests human input.
 
-For unattended execution, use session auto/bypass mode or allow rules for the
-workflow, file edits, `git`, the selected CLI, setup commands, and repository
-quality gates. The workflow does not change permission rules or request human input.
+## Workflow
 
-Preflight checks these prerequisites without repairing them. It snapshots spec
-content before creating a worktree, so an ignored or external spec still works.
-It chooses an existing PR/MR by task meaning; uncertain matches create a new branch.
-It never reuses a branch checked out by another worktree.
+1. **Preflight:** Detect the provider from `origin`; confirm custom hosts through
+   repository APIs. Failed prerequisites or unknown providers return a fix list
+   without repairs. Snapshot the input, including ignored/external specs. Reuse a
+   review matched by task meaning; uncertain matches get a new branch. Reject
+   branches already checked out elsewhere.
+2. **Implement and verify:** Run local gates and independently check the original
+   input. Allow **two repair rounds**, each with a fresh implementer and verifier.
+   Failed gates or missing results remain unresolved.
+3. **Deliver and check CI:** Open/update the review with failure details. Allow
+   **two CI repairs** with fresh implementers, without re-verification; previous
+   verification findings persist. Each inspection allows **20 polls, 15 seconds
+   apart**. Missing, blocked/manual, unknown, or exhausted CI keeps the review draft.
+4. **Finalize:** Make **one confirmation poll**, with **one recovery call** on
+   failure. Confirm review state, then remove the worktree only if all work is
+   committed and pushed; otherwise report its path. Failed recovery returns
+   **unconfirmed**, with known review/worktree details, never success.
 
-Each run uses `../<repo>.worktrees/<branch>`. All five agents share that path and
-receive explicit model and effort settings from the script. The user's checkout
-can be dirty. Worktree confinement relies on agent instructions, as Claude's
-workflow API has no per-call cwd option.
-
-The initial implementation and verification can be followed by **two repair
-rounds**, each with a fresh implementer and verifier. Failed local gates and
-missing agent results are unresolved findings. CI can trigger **two further
-repairs**, using fresh implementers without another verifier call. Findings left
-by verification remain unresolved during CI repair.
-
-Each CI inspection makes at most **20 polls**, with **15 seconds** between polls.
-Only a green pipeline for the pushed head counts. Exhausted polling, missing CI,
-blocked/manual pipelines, and unknown results keep the review request draft. Finalization
-makes one confirmation poll; one additional recovery call is allowed if it fails.
-These are poll/repair limits, not wall-clock deadlines.
-
-The CI agent confirms the review state and removes the worktree only when all work
-is committed and pushed. Otherwise the report includes its path. If tool access
-fails even during finalization recovery, the result is **unconfirmed**, with the
-known review and worktree details; it must not be read as a successful delivery.
+These limits bound retries and polls, not wall-clock time. All five agents share
+`../<repo>.worktrees/<branch>` and explicit script-defined model/effort settings.
+The user's checkout may be dirty. Confinement is prompt-only: the API has no
+per-agent cwd option.
 
 ## Provider contract
 
-The orchestration and five agents are shared. Provider command recipes live in
-the `providers` object in `workflows/deliver.js`; the script passes only the selected
-recipes to delivery and CI. Implementers and verifiers do not need provider commands.
-This keeps worktree setup, retry limits, findings, and cleanup consistent.
+The shared workflow selects command recipes from `providers` in
+[deliver.js](workflows/deliver.js). Delivery and CI receive only their selected
+recipes; implementers and verifiers need none. Every remote command specifies the
+host and repository.
 
-Preflight returns `provider`, canonical `repository: {host, path}`, and
-`review: {number, url}` (or null). GitLab's project-local IID and GitHub's PR number
-both map to `review.number`. CI maps to `{status, url, findings}`, where status is
-`success`, `failed`, `exhausted`, or `unknown`. Final results include the provider
-and review so callers do not need provider-specific field names.
+- Preflight: `provider`, canonical `repository: {host, path}`, and nullable
+  `review: {number, url}`. `number` maps to a GitHub PR number or GitLab project-local IID.
+- CI: `{status, url, findings}`; status is `success`, `failed`, `exhausted`, or `unknown`.
+- Final results include the provider and review.
 
-All remote operations specify the selected host and repository. GitHub body
-updates and draft transitions use separate commands. GitHub CI must check the
-current PR head and all reported checks, including legacy statuses; a single green
-Actions run or an empty required-check list is insufficient. GitLab CI must match
-the source head, including for merged-results pipelines. An older green result
-never counts for either provider.
+Only CI for the **pushed head** counts. GitHub checks all reported checks and legacy
+statuses, not one green Actions run or an empty required-check list; body updates
+and draft transitions are separate commands. GitLab verifies the source head,
+including merged-results pipelines. Older green results never count.
 
 ## Validation
 
@@ -89,24 +79,17 @@ claude plugin validate plugins/ai-factory
 node --test tests/ai-factory-deliver.test.mjs
 ```
 
-The tests execute the actual workflow script with schema-checked agent adapters.
-They cover original-input propagation, missing results, both repair caps, draft
-state, poll settings, review reuse, provider routing, recovery, and cleanup reports.
-A temporary local git remote exercises two concurrent adapter runs, branch locking,
-cleanup, and preservation of staged, unstaged, and untracked user changes.
+Schema-checked adapters execute the actual script, covering input propagation,
+missing results, repair caps, draft state, polls, review reuse, provider routing,
+recovery, and cleanup. Real git fixtures check concurrent runs, branch locks, and
+preservation of staged, unstaged, and untracked changes.
 
-The adapters do not test model judgment or real hosting API requests. Before
-production use, run this checklist in an authenticated Claude session against
-disposable GitHub and GitLab projects with CI:
+Model judgment and real hosting APIs require live testing. Before production,
+use authenticated Claude sessions and disposable GitHub/GitLab projects with CI:
 
-- [ ] Trigger a preflight failure and check the fix list and unchanged checkout.
-- [ ] Deliver both a spec file and a raw description.
-- [ ] Force verification findings through both repair rounds; inspect the draft.
-- [ ] Exercise pending, failed, then green CI, including an older green pipeline.
-- [ ] Exhaust both CI repairs and confirm a draft with failure logs.
-- [ ] Run two distinct tasks together with a dirty main checkout; compare status.
-- [ ] Re-run an active task and confirm preflight rejects its locked branch.
-- [ ] Re-run a completed task with an open PR/MR and confirm it reuses that review.
-- [ ] Check removal of clean, pushed worktrees and retention of local work.
-- [ ] Check custom-host routing and the fix list for a missing selected CLI.
-- [ ] On GitHub, check separate body/draft updates and mixed Actions/external checks.
+- [ ] Preflight failures, missing CLI, custom-host routing, and unchanged checkout.
+- [ ] Spec-file and description inputs; exhausted verification repairs produce a draft.
+- [ ] Pending/red/green/stale CI; exhausted CI repairs produce a draft with logs.
+- [ ] Parallel tasks preserve a dirty checkout; active-task reruns reject locked branches.
+- [ ] Completed-task reruns reuse open reviews; cleanup removes clean/pushed worktrees and retains local work.
+- [ ] GitHub body/draft updates and mixed Actions/external checks.
