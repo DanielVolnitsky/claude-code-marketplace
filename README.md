@@ -28,13 +28,13 @@ Every update runs `claude plugin validate .` (schema and layout baseline):
 ```bash
 # macOS / WSL / Git Bash
 claude plugin validate .
-for plugin in plugins/*; do claude plugin validate "$plugin"; done
+claude plugin validate plugins/ai-factory
 node --test tests/*.test.mjs
 ```
 
 ```powershell
 # Windows (PowerShell)
 claude plugin validate .
-Get-ChildItem plugins -Directory | ForEach-Object { claude plugin validate $_.FullName }
+claude plugin validate plugins/ai-factory
 node --test tests/ai-factory-deliver.test.mjs
 ```

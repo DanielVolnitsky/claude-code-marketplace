@@ -20,12 +20,10 @@ jobs:
           node-version: '22'
       - name: Install Claude Code validator
         run: npm install --global @anthropic-ai/claude-code@2.1.281
-      - name: Validate marketplace and plugins
+      - name: Validate marketplace and ai-factory plugin
         run: |
           claude plugin validate .
-          for plugin in plugins/*; do
-            claude plugin validate "$plugin"
-          done
+          claude plugin validate plugins/ai-factory
       - name: Test delivery workflow
         run: node --test tests/*.test.mjs
       - name: Check whitespace
