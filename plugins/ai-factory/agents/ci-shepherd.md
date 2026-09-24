@@ -1,6 +1,6 @@
 ---
 name: ci-shepherd
-description: Polls CI, reports repair evidence, and finalizes review state and worktree cleanup on GitHub or GitLab. Use for ai-factory CI inspection and finalization.
+description: Polls CI, reports repair evidence, and finalizes review state and worktree cleanup for a supported remote VCS. Use for ai-factory CI inspection and finalization.
 tools: Bash, Read, Glob, Grep
 ---
 

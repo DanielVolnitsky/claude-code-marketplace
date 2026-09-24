@@ -1,7 +1,7 @@
 # AI Factory
 
 `/ai-factory:deliver <spec-path | task description>` implements a task in a shared
-git worktree and delivers it to an open GitHub PR or GitLab MR. An independent
+git worktree and delivers it to a supported remote VCS. An independent
 verifier checks the original input before delivery. The workflow finishes ready
 only after green CI is confirmed. Unresolved work is delivered as a draft with
 failure details.

@@ -134,7 +134,7 @@ async function run({
 test('plugin registration, literal metadata, and agent model ownership', () => {
   const manifest = JSON.parse(readFileSync(join(plugin, '.claude-plugin/plugin.json')));
   assert.equal(manifest.name, 'ai-factory');
-  assert.equal(manifest.version, '1.1.0');
+  assert.equal(manifest.version, '1.1.1');
   const marketplace = JSON.parse(readFileSync(join(root, '.claude-plugin/marketplace.json')));
   assert.equal(marketplace.plugins.find(p => p.name === 'ai-factory').source.path, 'plugins/ai-factory');
   assert.ok(source.startsWith('export const meta = {'));

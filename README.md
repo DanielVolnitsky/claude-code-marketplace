@@ -18,7 +18,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 The [ai-factory plugin](plugins/ai-factory/README.md) provides
 `/ai-factory:deliver <spec-path | task description>` to implement and independently
-verify a task in an isolated worktree, then deliver a GitHub PR or GitLab MR with
+verify a task in an isolated worktree, then deliver it to a supported remote VCS with
 bounded CI repair. It detects the provider from `origin`. Unresolved work remains draft.
 
 ## Quality Gates

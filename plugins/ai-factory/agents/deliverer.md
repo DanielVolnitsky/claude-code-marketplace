@@ -1,6 +1,6 @@
 ---
 name: deliverer
-description: Commits and pushes work, then opens or updates a GitHub PR or GitLab MR. Use after verification and after each ai-factory CI repair.
+description: Commits and pushes work, then opens or updates a review request in a supported remote VCS. Use after verification and after each ai-factory CI repair.
 tools: Bash, Read, Glob, Grep
 ---
 

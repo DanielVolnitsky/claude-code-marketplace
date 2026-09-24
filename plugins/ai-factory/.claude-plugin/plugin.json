@@ -1,7 +1,7 @@
 {
   "name": "ai-factory",
-  "description": "Deliver a spec or task to a GitHub pull request or GitLab merge request through an isolated, verified workflow",
-  "version": "1.1.0",
+  "description": "Deliver a spec or task to a supported remote VCS through an isolated, verified workflow",
+  "version": "1.1.1",
   "author": {
     "name": "Daniel Volnitsky"
   }

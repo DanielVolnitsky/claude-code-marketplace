@@ -1,6 +1,6 @@
 export const meta = {
   name: 'deliver',
-  description: 'Implement and verify a task in one worktree, then deliver a GitHub PR or GitLab MR with green CI',
+  description: 'Implement and verify a task in one worktree, then deliver it to a supported remote VCS with green CI',
   phases: [
     { title: 'Preflight', model: 'sonnet' },
     { title: 'Implement', model: 'opus' },
