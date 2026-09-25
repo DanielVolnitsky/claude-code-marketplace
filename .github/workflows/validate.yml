@@ -1,0 +1,28 @@
+name: Validate marketplace
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Claude Code validator
+        run: npm install --global @anthropic-ai/claude-code@2.1.281
+      - name: Validate marketplace and ai-factory plugin
+        run: |
+          claude plugin validate .
+          claude plugin validate plugins/ai-factory
+      - name: Check whitespace
+        run: git diff --check HEAD^ HEAD

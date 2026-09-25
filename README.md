@@ -14,6 +14,13 @@ claude plugin install code-review@waytoodanny
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Delivery Workflow
+
+The [ai-factory plugin](plugins/ai-factory/README.md) provides
+`/ai-factory:deliver <spec-path | task description>` to implement and independently
+verify a task in an isolated worktree, then deliver it to a supported remote VCS with
+bounded CI repair. It detects the provider from `origin`. Unresolved work remains draft.
+
 ## Quality Gates
 
 Every update runs `claude plugin validate .` (schema and layout baseline):
@@ -21,11 +28,11 @@ Every update runs `claude plugin validate .` (schema and layout baseline):
 ```bash
 # macOS / WSL / Git Bash
 claude plugin validate .
-for f in scripts/*_validation.py; do python3 "$f"; done
+claude plugin validate plugins/ai-factory
 ```
 
 ```powershell
 # Windows (PowerShell)
 claude plugin validate .
-Get-ChildItem scripts\*_validation.py | ForEach-Object { python $_ }
+claude plugin validate plugins/ai-factory
 ```

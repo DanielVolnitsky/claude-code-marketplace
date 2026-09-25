@@ -7,6 +7,16 @@
   },
   "plugins": [
     {
+      "name": "ai-factory",
+      "description": "An isolated workflow that implements, verifies, and delivers tasks to a supported remote VCS",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/DanielVolnitsky/claude-code-marketplace.git",
+        "path": "plugins/ai-factory",
+        "ref": "main"
+      }
+    },
+    {
       "name": "code-review",
       "description": "Code Review activities related skills",
       "source": {

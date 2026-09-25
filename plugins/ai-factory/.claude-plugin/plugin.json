@@ -1,0 +1,8 @@
+{
+  "name": "ai-factory",
+  "description": "Deliver a spec or task to a supported remote VCS through an isolated, verified workflow",
+  "version": "1.0.0",
+  "author": {
+    "name": "Daniel Volnitsky"
+  }
+}
