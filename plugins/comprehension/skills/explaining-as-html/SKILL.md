@@ -17,9 +17,9 @@ Make a rich, interactive explanation of the specified topic.
 - **TL;DR** (mandatory, always first): A few sentences plus a short bullet list covering what, why, how, and what are the main benefits (when appropriate). Self-contained — understandable without reading any other section. Supported by diagrams (when appropriate);
 - **Background**: Explain the existing system relevant to this change (broadly explore surrounding code for this). Include a deep background for beginners (skippable if reader is already familiar), then a narrower background directly relevant to the change.
 - **Intuition**: Explain the core intuition for the topic. Focus on essence, not full detail. Use concrete examples with toy data. Use figures and diagrams liberally.
-- **Code** (when appropriate): High-level walkthrough of the changes to the code. Preferred content:
-  - a single diagram of all changed production files and (when appropriate) their connections to unchanged existing code.
-  - important changes highlights: when it's touching critical code, or code that's important to get right. No need to include other code changes in the page.
+- **Code** (when appropriate): High-level walkthrough of the **important changes to the code**: when changes are touching critical code, or code that's important to get right. No need to include other code changes in the page. Preferred content:
+  - a single diagram of all changed production files and (when appropriate) their connections to unchanged existing code. Make sure to distinguish changes and unchanged with different colors.
+  - important changes highlights: full code change as an expander + comments below.
 - **Quiz**: Up to ten interactive multiple-choice questions testing the reader's understanding of the content, count depending on change scope. Medium difficulty — needs real understanding of the substance, not gotchas. On click, show correct/incorrect and feedback.
 
 Additional sections are welcomed as long as they contribute to the quality of the explanation.
@@ -35,9 +35,10 @@ Additional sections are welcomed as long as they contribute to the quality of th
 ### Diagrams
 
 - **Sequence diagrams** are preferred over the verbose explanation to demonstrate before/after state of some changed process;
-- Mermaid is a preferable diagram as a code implementation;
+- **PlantUML** is a preferable diagram as a code implementation;
+  - do not include PlantUML source in the page.
 - Reuse a small number of diagram families throughout (e.g. simplified UI mockups for UI changes, system diagrams showing data flow between components with example data);
-- No ASCII diagrams — always mermaid or simple HTML/CSS designs, HTML lists for lists of things;
+- No ASCII diagrams — always PlantUML or simple HTML/CSS designs, HTML lists for lists of things;
 - Code blocks: always use `<pre>` tags. If using a custom styled div instead, it must have `white-space: pre-wrap` in its CSS or the browser collapses newlines. Before saving, scan every code block's CSS and confirm it includes `white-space: pre` or `pre-wrap`.
 
 ## Quality rules
