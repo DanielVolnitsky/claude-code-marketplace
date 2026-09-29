@@ -5,6 +5,7 @@ argument-hint: "[what to explain]"
 user-invocable: true
 disable-model-invocation: true
 model: opus
+effort: medium
 ---
 
 # Explain as HTML
@@ -13,7 +14,7 @@ Make a rich, interactive explanation of the specified topic.
 
 ## Sections
  
-- **TL;DR** (mandatory, always first): A few sentences plus a short bullet list covering what, why, and how. Self-contained — understandable without reading any other section. Supported by diagrams when appropriate;
+- **TL;DR** (mandatory, always first): A few sentences plus a short bullet list covering what, why, how, and what are the main benefits (when appropriate). Self-contained — understandable without reading any other section. Supported by diagrams (when appropriate);
 - **Background**: Explain the existing system relevant to this change (broadly explore surrounding code for this). Include a deep background for beginners (skippable if reader is already familiar), then a narrower background directly relevant to the change.
 - **Intuition**: Explain the core intuition for the topic. Focus on essence, not full detail. Use concrete examples with toy data. Use figures and diagrams liberally.
 - **Code**: High-level walkthrough of the changes to the code. Group/order changes in an understandable way. Opened with diagrams when appropriate
@@ -31,6 +32,7 @@ Additional sections are welcomed as long as they contribute to the quality of th
 
 ### Diagrams
 
+- **Sequence diagrams** are preferred over the verbose explanation to demonstrate before/after state of some changed process;
 - Mermaid is a preferable diagram as a code implementation;
 - Reuse a small number of diagram families throughout (e.g. simplified UI mockups for UI changes, system diagrams showing data flow between components with example data);
 - No ASCII diagrams — always mermaid or simple HTML/CSS designs, HTML lists for lists of things;
