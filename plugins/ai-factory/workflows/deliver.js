@@ -151,7 +151,7 @@ const preflight = await call(
   {
     agentType: 'ai-factory:preflight-gateway',
     model: 'sonnet',
-    effort: 'medium',
+    effort: 'low',
     label: 'Preflight',
     schema: preflightSchema,
   },
@@ -192,7 +192,7 @@ async function implement(label, findings, previousResult) {
   }), {
     agentType: 'ai-factory:implementer',
     model: 'opus',
-    effort: 'high',
+    effort: 'medium',
     label,
     schema: implementationSchema,
   });
@@ -241,7 +241,7 @@ try {
     }), {
       agentType: 'ai-factory:verifier',
       model: 'opus',
-      effort: 'xhigh',
+      effort: 'high',
       label: `Verify ${round + 1}`,
       schema: object({ summary: text, findings: texts }),
     });
