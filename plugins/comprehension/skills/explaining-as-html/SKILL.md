@@ -15,6 +15,7 @@ Make a rich, interactive explanation of the specified topic.
 ## Sections
  
 - **TL;DR** (mandatory, always first): A few sentences plus a short bullet list covering what, why, how, and what are the main benefits (when appropriate). Self-contained — understandable without reading any other section. Supported by diagrams (when appropriate);
+- **Glossary**: Every non-obvious term which definition a reader must know to comprehend the content. As a table;
 - **Background**: Explain the existing system relevant to this change (broadly explore surrounding code for this). Include a deep background for beginners (skippable if reader is already familiar), then a narrower background directly relevant to the change.
 - **Intuition**: Explain the core intuition for the topic. Focus on essence, not full detail. Use concrete examples with toy data. Use figures and diagrams liberally.
 - **Code** (when appropriate): High-level walkthrough of the **important changes to the code**: when changes are touching critical code, or code that's important to get right. No need to include other code changes in the page. Preferred content:

@@ -98,6 +98,7 @@
 <strong>Contents</strong>
 <ol>
   <li><a href="#tldr">TL;DR</a></li>
+  <li><a href="#glossary">Glossary</a></li>
   <li><a href="#background">Background: what Astra already had</a></li>
   <li><a href="#intuition">Intuition: a gauntlet of gates</a></li>
   <li><a href="#code">Code: the four files that matter</a></li>
@@ -130,6 +131,19 @@ flowchart LR
   style A fill:#eaf3ee,stroke:#2f6f4f
   style C fill:#fdf3e0,stroke:#8a5a12
 </div>
+
+<h2 id="glossary">Glossary</h2>
+
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td><b>Agent runtime</b></td><td>One deployed AgentCore instance of an agent for one environment — <code>release</code> becomes <code>dev-release</code>, <code>uat-release</code>.</td></tr>
+<tr><td><b>Trigger</b></td><td>An entry in an agent's <code>triggers</code> list in <code>agents.yaml</code> (e.g. <code>jira-comment</code>) declaring which webhook events it answers.</td></tr>
+<tr><td><b>Keyword</b></td><td>The comment prefix (<code>bwai:</code>) that directly invokes an agent. Comments without it are ignored.</td></tr>
+<tr><td><b>Session <code>ref</code></b></td><td>A namespaced external key on a session (here, the Jira issue key) that lets later events continue the same conversation.</td></tr>
+<tr><td><b>Admission</b></td><td>Everything before the agent turn: parse, filter, keyword check, session resolution, lock. Jira does it synchronously; GitLab after replying.</td></tr>
+<tr><td><b>Busy lock</b></td><td>An in-process lock ensuring one session never runs two turns at once; a second request gets <code>409 busy</code>.</td></tr>
+<tr><td><b>Reply loop</b></td><td>An agent's own Jira comment re-triggering the agent. Prevented by requiring the keyword.</td></tr>
+</table>
 
 <h2 id="background">Background: what Astra already had</h2>
 
