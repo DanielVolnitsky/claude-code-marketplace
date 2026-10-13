@@ -21,6 +21,13 @@ Make a rich, interactive explanation of the specified topic.
 - **Code** (when appropriate): High-level walkthrough of the **important changes to the code**: when changes are touching critical code, or code that's important to get right. No need to include other code changes in the page. Preferred content:
   - a single diagram of all changed production files and (when appropriate) their connections to unchanged existing code. Make sure to distinguish changes and unchanged with different colors.
   - important changes highlights: full code change as an expander + comments below.
+- **Layers** (when appropriate): an interactive onion view. Derive the layers from the repo's real architecture, not a generic template.
+  - ignore non-production changes;
+  - per layer: one rainbow hue (core red → edge violet), change size as tint strength + bar (show added and removed lines, toggles for production lines and new files); click a layer to list its files with a one-line purpose each;
+  - mark each dependency that breaks the layering rule (points outward) with an arrow and explain its consequence (if any);
+  - draw peer layers (e.g. separate adapters) side by side, not nested;
+  - exclude generated or re-recorded files from the size scale, and say so;
+  - end with a short "what the layers show" callout; every claim in it must match the numbers shown.
 - **Quiz**: Up to ten interactive multiple-choice questions testing the reader's understanding of the content, count depending on change scope. Medium difficulty — needs real understanding of the substance, not gotchas. On click, show correct/incorrect and feedback.
 
 Additional sections are welcomed as long as they contribute to the quality of the explanation.

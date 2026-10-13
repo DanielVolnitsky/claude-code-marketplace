@@ -85,6 +85,23 @@
   .fb.shown{display:block}
   .score{font-family:system-ui,sans-serif; font-size:.9rem; color:var(--muted); margin-top:14px}
   footer{margin-top:3em; padding-top:1em; border-top:1px solid var(--rule); color:var(--muted); font-size:.82rem; font-family:system-ui,sans-serif}
+  /* layers (onion) */
+  .onion{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:16px; margin:1.2em 0; font-family:system-ui,sans-serif; font-size:.85rem}
+  @media (max-width:700px){.onion{grid-template-columns:1fr}}
+  .onion svg{width:100%; height:auto; display:block}
+  .onion svg .seg{cursor:pointer; stroke:var(--card); stroke-width:2}
+  .onion svg .seg.sel{stroke:var(--fg); stroke-width:2.5}
+  .onion svg text{font-family:system-ui,sans-serif; font-size:11px; pointer-events:none}
+  .ltog button{font:inherit; font-size:.8rem; background:var(--bg); color:var(--fg); border:1px solid var(--rule); border-radius:999px; padding:4px 11px; margin:0 4px 8px 0; cursor:pointer}
+  .ltog button.on{background:var(--accent); color:var(--bg); border-color:var(--accent)}
+  .lbars{margin-top:8px}
+  .lbar{display:grid; grid-template-columns:8.5em 1fr 5.5em; gap:8px; align-items:center; margin:4px 0; cursor:pointer}
+  .lbar .tr{height:9px; background:var(--code-bg); border-radius:5px; overflow:hidden}
+  .lbar .fl{height:100%; background:var(--accent); border-radius:5px}
+  .lbar .n{text-align:right; font-family:var(--mono); font-size:.75rem}
+  .add{color:var(--accent)} .del{color:var(--stop)}
+  .ldetail h4{margin:0 0 4px; font-size:1rem}
+  .ldetail table{margin:.6em 0}
 </style>
 </head>
 <body>
@@ -102,6 +119,7 @@
   <li><a href="#background">Background: what Astra already had</a></li>
   <li><a href="#intuition">Intuition: a gauntlet of gates</a></li>
   <li><a href="#code">Code: the four files that matter</a></li>
+  <li><a href="#layers">Layers: core to edge</a></li>
   <li><a href="#limits">Current restrictions</a></li>
   <li><a href="#quiz">Quiz</a></li>
 </ol>
@@ -307,6 +325,24 @@ return bool(re.search(rf"(?&lt;!\w)({alternatives})", comment_body, re.IGNORECAS
 <p>A full Jira issue payload carries every custom field and would dominate the agent's context. An agent that needs more reads the issue through the Jira API using <code>issue.key</code>. Note also the logging discipline: on a <code>no_mention</code> skip the code logs the issue key, comment id, and author — never the body, because Jira comments routinely carry customer data.</p>
 </details>
 
+<h2 id="layers">Layers: core to edge</h2>
+
+<p>The model is at the center. A ring can depend on the rings inside it, but not on the rings outside it. Ring 3 holds three peer adapters, so the view draws them side by side as segments of one ring. Click a ring, a segment, or a bar to see its files.</p>
+
+<div class="onion">
+  <div>
+    <div class="ltog" id="ltog">
+      <button type="button" data-m="prod" class="on">Production lines</button><button type="button" data-m="new">New files</button>
+    </div>
+    <svg id="lsvg" viewBox="0 0 300 300" role="img" aria-label="Onion view of the change by layer"></svg>
+    <div class="lbars" id="lbars"></div>
+    <p style="color:var(--muted); font-size:.75rem">Colour: one hue per layer. Tint strength and bar: added + removed lines, relative to the largest layer. Arrow: a dependency that points outward. No generated files in this change.</p>
+  </div>
+  <div class="ldetail" id="ldetail"></div>
+</div>
+
+<div class="call warn"><b>What the layers show.</b> The new shared layer (ring 2) and the Jira adapter (3a) carry most of the change. The GitLab adapter got smaller: it lost 65 lines because it now calls the shared runner. One dependency points outward: <code>runner.py</code> and <code>env_binding.py</code> import from <code>dispatch.py</code>, the AgentCore adapter. So the shared layer is tied to one runtime backend. A second backend needs a change in ring 2, not only a new adapter.</div>
+
 <h2 id="limits">Current restrictions</h2>
 
 <p>Some of these are design decisions with a stated rationale; others are the edges the first version simply has not reached yet. Worth separating the two.</p>
@@ -501,6 +537,71 @@ QUESTIONS.forEach((q, qi) => {
   card.appendChild(fb);
   container.appendChild(card);
 });
+const LAYERS = [
+  {id:'0', name:'0 · Model', what:'Pydantic models for agent config and triggers.', prod:[20,0], nw:0,
+   files:[['agents/models.py','+20','−0','JIRA_COMMENT_TRIGGER and integration config models']]},
+  {id:'1', name:'1 · Config', what:'Agent registry and its startup validation.', prod:[42,8], nw:0,
+   files:[['agents/registry.py','+36','−8','Refuses a config without a reply-loop guard'],['agents/agents.yaml','+6','−0','Jira trigger for the release-notes agent']]},
+  {id:'2', name:'2 · Shared webhook', what:'Logic that all webhook providers use.', prod:[302,44], nw:2,
+   files:[['routes/webhooks/runner.py','+236','−0','New. Session, lock, admission'],['routes/webhooks/env_binding.py','+66','−0','New. Which runtimes can answer'],['routes/webhooks/gitlab_env_filter.py','+0','−44','Deleted. Moved to env_binding.py']]},
+  {id:'3a', name:'3a · Jira', what:'Jira payload parsing, gates, prompt.', prod:[387,0], nw:1,
+   files:[['routes/webhooks/jira.py','+387','−0','New. The Jira adapter']]},
+  {id:'3b', name:'3b · GitLab', what:'GitLab adapter, moved onto the shared runner.', prod:[25,65], nw:0,
+   files:[['routes/webhooks/gitlab.py','+25','−65','Now calls run_agent_for_event']]},
+  {id:'3c', name:'3c · Dispatch', what:'AgentCore runtime invocation.', prod:[1,1], nw:0,
+   files:[['routes/webhooks/dispatch.py','+1','−1','WebhookSource gets a jira value']]},
+  {id:'4', name:'4 · Edge', what:'App wiring and docs that callers read.', prod:[111,4], nw:0,
+   files:[['main.py','+5','−2','Registers the Jira router'],['apps/api/README.md','+88','−0','Jira webhook contract'],['agents/README.md','+18','−2','How to declare a Jira trigger']]}
+];
+// rings: [inner radius, outer radius, start angle, end angle] in degrees, 0 = top
+const GEOM = {'0':[0,34,0,360], '1':[36,62,0,360], '2':[64,90,0,360],
+  '3a':[92,118,0,120], '3b':[92,118,120,240], '3c':[92,118,240,360], '4':[120,146,0,360]};
+// rainbow by layer, core (red) to edge (violet); tint strength = change size
+const HUE = {'0':'#e5484d','1':'#f76b15','2':'#e2a400','3a':'#30a46c','3b':'#12a594','3c':'#0090ff','4':'#8e4ec6'};
+let lmode = 'prod', lsel = '2';
+const NS = 'http://www.w3.org/2000/svg', C = 150;
+const pt = (r,a) => [C + r*Math.sin(a*Math.PI/180), C - r*Math.cos(a*Math.PI/180)];
+function arc(r0,r1,a0,a1){
+  if(a1 - a0 >= 360){
+    return `M${C-r1},${C}a${r1},${r1} 0 1,0 ${2*r1},0a${r1},${r1} 0 1,0 ${-2*r1},0` +
+      (r0 ? `M${C-r0},${C}a${r0},${r0} 0 1,1 ${2*r0},0a${r0},${r0} 0 1,1 ${-2*r0},0` : '');
+  }
+  const [x0,y0]=pt(r1,a0),[x1,y1]=pt(r1,a1),[x2,y2]=pt(r0,a1),[x3,y3]=pt(r0,a0), big = a1-a0 > 180 ? 1 : 0;
+  return `M${x0},${y0}A${r1},${r1} 0 ${big},1 ${x1},${y1}L${x2},${y2}A${r0},${r0} 0 ${big},0 ${x3},${y3}Z`;
+}
+const lsize = l => lmode === 'new' ? l.nw : (l[lmode][0] + l[lmode][1]);
+const lnum = l => lmode === 'new' ? `${l.nw}` : `+${l[lmode][0]} / −${l[lmode][1]}`;
+function lrender(){
+  const max = Math.max(1, ...LAYERS.map(lsize)), svg = document.getElementById('lsvg');
+  svg.innerHTML = '<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--fg)"/></marker></defs>';
+  LAYERS.forEach(l => {
+    const [r0,r1,a0,a1] = GEOM[l.id], p = document.createElementNS(NS,'path');
+    p.setAttribute('d', arc(r0,r1,a0,a1)); p.setAttribute('fill-rule','evenodd');
+    p.setAttribute('class', 'seg' + (l.id === lsel ? ' sel' : ''));
+    p.style.fill = `color-mix(in srgb, ${HUE[l.id]} ${20 + 75*lsize(l)/max}%, var(--card))`;
+    p.addEventListener('click', () => { lsel = l.id; lrender(); });
+    svg.appendChild(p);
+    const mid = (a0 + a1)/2, [tx,ty] = a1 - a0 >= 360 ? [C, C - (r0 + r1)/2 + 4] : pt((r0+r1)/2, mid);
+    const t = document.createElementNS(NS,'text');
+    t.setAttribute('x',tx); t.setAttribute('y',ty+4); t.setAttribute('text-anchor','middle'); t.setAttribute('fill','var(--fg)');
+    t.textContent = l.id; svg.appendChild(t);
+  });
+  // outward dependency: ring 2 imports the 3c dispatch adapter
+  const [ax,ay] = pt(76,330), [bx,by] = pt(106,330), a = document.createElementNS(NS,'line');
+  [['x1',ax],['y1',ay],['x2',bx],['y2',by],['stroke','var(--fg)'],['stroke-width','3'],['marker-end','url(#ah)']].forEach(([k,v]) => a.setAttribute(k,v));
+  svg.appendChild(a);
+  document.getElementById('lbars').innerHTML = LAYERS.map(l =>
+    `<div class="lbar" data-id="${l.id}"><span>${l.name}</span><div class="tr"><div class="fl" style="width:${100*lsize(l)/max}%; background:${HUE[l.id]}"></div></div><span class="n">${lnum(l)}</span></div>`).join('');
+  document.querySelectorAll('.lbar').forEach(b => b.addEventListener('click', () => { lsel = b.dataset.id; lrender(); }));
+  const l = LAYERS.find(x => x.id === lsel);
+  document.getElementById('ldetail').innerHTML = `<h4>${l.name}</h4><p style="color:var(--muted); margin:0">${l.what}</p>
+    <p>Production <b>+${l.prod[0]} / −${l.prod[1]}</b> · new files <b>${l.nw}</b></p>
+    <table><tr><th>File</th><th>Δ</th></tr>${l.files.map(f => `<tr><td><code>${f[0]}</code><br>${f[3]}</td><td style="white-space:nowrap"><span class="add">${f[1]}</span> <span class="del">${f[2]}</span></td></tr>`).join('')}</table>`;
+}
+document.querySelectorAll('#ltog button').forEach(b => b.addEventListener('click', () => {
+  lmode = b.dataset.m; document.querySelectorAll('#ltog button').forEach(x => x.classList.toggle('on', x === b)); lrender();
+}));
+lrender();
 </script>
 </body>
 </html>
