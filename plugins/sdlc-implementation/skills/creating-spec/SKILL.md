@@ -1,8 +1,7 @@
 ---
 name: dv-creating-spec
 description: "Use when user asks to create a spec | specification file based on some provided context or current session context. Converts provided context to a specification file."
-model: sonnet
-context: fork
+model: opus
 ---
 
 ## Key Principles

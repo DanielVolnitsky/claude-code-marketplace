@@ -2,6 +2,7 @@
 name: spec-reviewer
 description: Use this agent to review a specification/design document before implementation. Verifies that the spec contains all the necessary details and corresponds to requirements and constraints. Invoke after a spec file has been written or substantially updated, before planning or implementation starts. Pass the path to the spec file as the agent input.
 model: opus
+effort: low
 color: green
 ---
 

@@ -1,8 +1,7 @@
 ---
 name: dv-executing-spec
 description: Use when a specification file has been created and there is a request for its implementation. Implements the spec with review checkpoints.
-model: sonnet
-context: fork
+model: opus
 ---
 
 # Executing Specs
@@ -54,7 +53,7 @@ After all tasks are done and verified:
 ### Step 5: Propose Next Steps Options
 
 Use `AskUserQuestion` tool to ask user what they want to do with the result of your work:
-- Propose launching a code polishing `sdlc-implementation:dv-code-polishing` skill
+- Propose launching a code polishing `sdlc-implementation:polishing-changes` skill
 - Propose finalizing the work by using `sdlc-implementation:dv-finishing-a-development-branch` skill
 
 ## When to Stop and Ask for Help
@@ -88,6 +87,6 @@ Use `AskUserQuestion` tool to ask user what they want to do with the result of y
 
 Use `AskUserQuestion` tool to propose next step/steps (multiple choice is available):
 
-- review and polish the produced code to potentially improve its quality using `sdlc-implementation:dv-code-polishing` skill
+- review and polish the produced code to potentially improve its quality using `sdlc-implementation:polishing-changes` skill
 - finish the development iteration using `sdlc-implementation:finishing-a-development-branch` skill
 - `freeform human request option`
