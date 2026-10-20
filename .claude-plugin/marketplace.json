@@ -55,6 +55,16 @@
         "path": "plugins/agents-development",
         "ref": "main"
       }
+    },
+    {
+      "name": "brainstorming",
+      "description": "Skills for refining raw tasks and plans by interviewing the human until the design is solid",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/DanielVolnitsky/claude-code-marketplace.git",
+        "path": "plugins/brainstorming",
+        "ref": "main"
+      }
     }
   ]
 }

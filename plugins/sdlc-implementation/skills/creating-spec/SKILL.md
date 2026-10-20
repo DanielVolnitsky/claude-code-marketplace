@@ -36,4 +36,4 @@ Create a spec file based on provided context according to Key Principles, Spec C
     - Else - modify the spec according to review comments
 - Use `AskUserQuestion` tool to propose human next steps options:
     - implement the spec using `sdlc-implementation:executing-spec` skill
-    - critically evaluate the spec using `sdlc-implementation:critical-thinking` skill
+    - critically evaluate the spec using `brainstorming:critical-thinking` skill
