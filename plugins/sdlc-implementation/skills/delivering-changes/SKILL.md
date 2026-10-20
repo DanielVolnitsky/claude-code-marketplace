@@ -20,6 +20,16 @@ Candidates:
 - default repository branch may be different from repo to repo (e.g. develop, main, master);
 - make sure feature branch is created from latest origin/<default_repository_branch> state so no rebase is needed later on;
 
+## VCS MR Preferences
+
+Description must contain: 
+- What (What was done),
+- Why (Intent explanation),
+- How (How exactly the problem was solved).
+
+You may add some additional information you consider important for humans reviewing this MR.
+Make sure Description does not cover all the details and does not explain code. It should be brief but clear in terms of explaining to a human reviewer why this MR exists.
+
 ## How to deliver results
 
 Inform a user about the results: provide feature branch name, local quality gates results, remote MR link, remote MR CI state and any other info you think is important to convey.
