@@ -1,5 +1,5 @@
 ---
-name: dv-delivering-changes
+name: dv-delivering-changes-to-vcs
 description: Validates changes and delivers them to a remote VCS MR making sure CI pipeline is green. Use when some task implementation or fix is complete, and you need to deliver the changes to a remote VCS MR.
 argument-hint: "[request specifics]"
 model: opus
